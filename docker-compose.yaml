@@ -1,0 +1,66 @@
+version: '3.8'
+
+services:
+  app-debug:
+    image: golang:1.23
+    container_name: user-api-debug
+    volumes:
+      - .:/app
+    ports:
+      - "9205:9205"
+    working_dir: /app
+    tty: true
+    environment:
+      - PORT=9205
+      - DB_CONNECTION_STRING=userapi:th15_15_s3cr3t@tcp(mysql:3306)/userdb?charset=utf8mb4&parseTime=True&loc=Local
+      - JWT_SECRET=74beb1f05bec22f86792af460b2f1301
+
+  # user-api:    #DB_CONNECTION_STRING=mysql://root:secret@tcp(mysql:3306)/userdb
+  #   build:
+  #     context: .  
+  #     dockerfile: Dockerfile
+  #   ports:
+  #     - "8080:8080"  
+  #   volumes:
+  #     - .:/app     
+  #   depends_on:
+  #     - mysql
+  #     - rabbitmq
+  #   environment:
+  #     - MYSQL_HOST=mysql
+  #     - MYSQL_USER=root
+  #     - MYSQL_PASSWORD=secret
+  #     - MYSQL_DB=userdb
+  #     - RABBITMQ_HOST=rabbitmq
+  #     - RABBITMQ_DEFAULT_USER=guest
+  #     - RABBITMQ_DEFAULT_PASS=guest
+  #   restart: unless-stopped
+
+  mysql:
+    image: mysql:8.0
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=th15_15_t00_s3cr3t  
+      - MYSQL_USER=userapi                      
+      - MYSQL_PASSWORD=th15_15_s3cr3t
+      - MYSQL_DATABASE=userdb
+    volumes:
+      - mysql_data:/var/lib/mysql  
+    restart: unless-stopped
+
+  rabbitmq:
+    image: rabbitmq:3-management 
+    ports:
+      - "5672:5672"  
+      - "15672:15672" 
+    environment:
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    restart: unless-stopped
+
+volumes:
+  mysql_data:
+  rabbitmq_data:
