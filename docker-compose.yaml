@@ -56,9 +56,11 @@ services:
       - "15672:15672" 
     environment:
       - RABBITMQ_DEFAULT_USER=guest
-      - RABBITMQ_DEFAULT_PASS=guest
+      - RABBITMQ_DEFAULT_PASS=th15_15_s3cr3t
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq
+      - ./rabbit/rabbitmq-definitions.json:/etc/rabbitmq/definitions.json:ro
+      - ./rabbit/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf:ro
     restart: unless-stopped
 
 volumes:
