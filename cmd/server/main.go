@@ -80,12 +80,6 @@ func main() {
 		userService,
 	)
 
-	fileHandler := handler.NewFileHandler(
-		logger,
-		payload.DecodeValidator{},
-		userService,
-	)
-
 	// middleware
 	mux := http.NewServeMux()
 	hdlr := middleware.NewLoggingMiddleware(logger).Logging(mux)
@@ -94,8 +88,7 @@ func main() {
 	// register routes
 	mux.HandleFunc(handler.Authenticate, usrHandler.HandleAuthenticate)
 	mux.HandleFunc(handler.ListUsers, usrHandler.HandleListUsers)
-
-	mux.HandleFunc(handler.UploadFile, fileHandler.HandleFileUpload)
+	mux.HandleFunc(handler.UploadFile, usrHandler.HandleFileUpload)
 
 	srv := server.NewHTTP(logger, hdlr, config.Port)
 	if err := run(srv); err != nil {

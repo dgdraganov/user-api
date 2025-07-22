@@ -18,16 +18,11 @@ type RequestValidator interface {
 	DecodeAndValidateQueryParams(r *http.Request, object payload.URLDecoder) error
 }
 
-//counterfeiter:generate -o fake -fake-name UserService . UserService
-type UserService interface {
+//counterfeiter:generate -o fake -fake-name CoreService . CoreService
+type CoreService interface {
 	Authenticate(ctx context.Context, msg core.AuthMessage) (string, error)
 	ListUsers(ctx context.Context, page int, pageSize int) ([]core.UserRecord, error)
 	ValidateToken(ctx context.Context, token string) (jwt.MapClaims, error)
-}
-
-//counterfeiter:generate -o fake -fake-name FileService . FileService
-type FileService interface {
 	UploadUserFile(ctx context.Context, objectName string, file io.Reader, fileSize int64) error
-	ValidateToken(ctx context.Context, token string) (jwt.MapClaims, error)
 	SaveFileMetadata(ctx context.Context, fileName, bucket, userID string) error
 }
