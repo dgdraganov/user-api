@@ -24,7 +24,7 @@ func (a AuthRequest) Validate() error {
 	return nil
 }
 
-func (a AuthRequest) ToMessage() core.AuthMessage {
+func (a *AuthRequest) ToMessage() core.AuthMessage {
 	return core.AuthMessage{
 		Email:    a.Email,
 		Password: a.Password,

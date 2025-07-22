@@ -24,6 +24,21 @@ type UserService struct {
 		result1 string
 		result2 error
 	}
+	ListUsersStub        func(context.Context, int, int) ([]core.UserRecord, error)
+	listUsersMutex       sync.RWMutex
+	listUsersArgsForCall []struct {
+		arg1 context.Context
+		arg2 int
+		arg3 int
+	}
+	listUsersReturns struct {
+		result1 []core.UserRecord
+		result2 error
+	}
+	listUsersReturnsOnCall map[int]struct {
+		result1 []core.UserRecord
+		result2 error
+	}
 	invocations      map[string][][]interface{}
 	invocationsMutex sync.RWMutex
 }
@@ -89,6 +104,72 @@ func (fake *UserService) AuthenticateReturnsOnCall(i int, result1 string, result
 	}
 	fake.authenticateReturnsOnCall[i] = struct {
 		result1 string
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *UserService) ListUsers(arg1 context.Context, arg2 int, arg3 int) ([]core.UserRecord, error) {
+	fake.listUsersMutex.Lock()
+	ret, specificReturn := fake.listUsersReturnsOnCall[len(fake.listUsersArgsForCall)]
+	fake.listUsersArgsForCall = append(fake.listUsersArgsForCall, struct {
+		arg1 context.Context
+		arg2 int
+		arg3 int
+	}{arg1, arg2, arg3})
+	stub := fake.ListUsersStub
+	fakeReturns := fake.listUsersReturns
+	fake.recordInvocation("ListUsers", []interface{}{arg1, arg2, arg3})
+	fake.listUsersMutex.Unlock()
+	if stub != nil {
+		return stub(arg1, arg2, arg3)
+	}
+	if specificReturn {
+		return ret.result1, ret.result2
+	}
+	return fakeReturns.result1, fakeReturns.result2
+}
+
+func (fake *UserService) ListUsersCallCount() int {
+	fake.listUsersMutex.RLock()
+	defer fake.listUsersMutex.RUnlock()
+	return len(fake.listUsersArgsForCall)
+}
+
+func (fake *UserService) ListUsersCalls(stub func(context.Context, int, int) ([]core.UserRecord, error)) {
+	fake.listUsersMutex.Lock()
+	defer fake.listUsersMutex.Unlock()
+	fake.ListUsersStub = stub
+}
+
+func (fake *UserService) ListUsersArgsForCall(i int) (context.Context, int, int) {
+	fake.listUsersMutex.RLock()
+	defer fake.listUsersMutex.RUnlock()
+	argsForCall := fake.listUsersArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3
+}
+
+func (fake *UserService) ListUsersReturns(result1 []core.UserRecord, result2 error) {
+	fake.listUsersMutex.Lock()
+	defer fake.listUsersMutex.Unlock()
+	fake.ListUsersStub = nil
+	fake.listUsersReturns = struct {
+		result1 []core.UserRecord
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *UserService) ListUsersReturnsOnCall(i int, result1 []core.UserRecord, result2 error) {
+	fake.listUsersMutex.Lock()
+	defer fake.listUsersMutex.Unlock()
+	fake.ListUsersStub = nil
+	if fake.listUsersReturnsOnCall == nil {
+		fake.listUsersReturnsOnCall = make(map[int]struct {
+			result1 []core.UserRecord
+			result2 error
+		})
+	}
+	fake.listUsersReturnsOnCall[i] = struct {
+		result1 []core.UserRecord
 		result2 error
 	}{result1, result2}
 }

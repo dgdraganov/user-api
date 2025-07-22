@@ -33,7 +33,8 @@ func NewUserService(logger *zap.SugaredLogger, repo Repository, jwt JWTIssuer) *
 
 // Authenticate checks the provided email and password against the database. If the credentials are valid, it generates a JWT token for the user.
 func (f *UserService) Authenticate(ctx context.Context, msg AuthMessage) (string, error) {
-	user, err := f.repo.GetUserFromDB(ctx, msg.Email)
+	user := repository.User{}
+	err := f.repo.GetUserByEmail(ctx, msg.Email, &user)
 	if err != nil {
 		if errors.Is(err, repository.ErrUserNotFound) {
 			return "", ErrUserNotFound
@@ -57,4 +58,33 @@ func (f *UserService) Authenticate(ctx context.Context, msg AuthMessage) (string
 	}
 
 	return signed, nil
+}
+
+func (f *UserService) ListUsers(ctx context.Context, page int, pageSize int) ([]UserRecord, error) {
+	users := []repository.User{}
+	err := f.repo.ListUsersByPage(ctx, page, pageSize, &users)
+	if err != nil {
+		return nil, fmt.Errorf("list users: %w", err)
+	}
+
+	userRecords := toUserRecordList(users)
+	return userRecords, nil
+}
+
+func toUserRecord(u repository.User) UserRecord {
+	return UserRecord{
+		ID:        u.ID,
+		FirstName: u.FirstName,
+		LastName:  u.LastName,
+		Email:     u.Email,
+		Age:       u.Age,
+	}
+}
+
+func toUserRecordList(users []repository.User) []UserRecord {
+	var userRecords []UserRecord
+	for _, u := range users {
+		userRecords = append(userRecords, toUserRecord(u))
+	}
+	return userRecords
 }

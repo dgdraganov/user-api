@@ -32,22 +32,20 @@ func (r *UserRepository) MigrateTables(tables ...any) error {
 	return err
 }
 
-func (r *UserRepository) GetUserFromDB(ctx context.Context, email string) (*User, error) {
-	var user User
-	err := r.db.GetOneBy(ctx, "email", email, &user)
+func (r *UserRepository) GetUserByEmail(ctx context.Context, email string, user *User) error {
+	err := r.db.GetOneBy(ctx, "email", email, user)
 	if err != nil {
 		if errors.Is(err, db.ErrNotFound) {
-			return nil, ErrUserNotFound
+			return ErrUserNotFound
 		}
-		return nil, fmt.Errorf("get user from db: %w", err)
+		return fmt.Errorf("get user from db: %w", err)
 	}
 
-	return &user, nil
+	return nil
 }
 
 // SeedUserTable seeds the user table with a default set of users if it is empty.
 func (r *UserRepository) SeedUserTable(ctx context.Context) error {
-
 	users := []User{
 		{
 			ID:           uuid.NewString(),
@@ -72,5 +70,13 @@ func (r *UserRepository) SeedUserTable(ctx context.Context) error {
 		return fmt.Errorf("seed database: %w", err)
 	}
 
+	return nil
+}
+
+func (r *UserRepository) ListUsersByPage(ctx context.Context, page int, pageSize int, users *[]User) error {
+	err := r.db.ListByPage(ctx, page, pageSize, users)
+	if err != nil {
+		return fmt.Errorf("list users by page: %w", err)
+	}
 	return nil
 }

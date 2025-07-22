@@ -64,7 +64,7 @@ func main() {
 	// handler
 	usrHandler := handler.NewUserHandler(
 		logger,
-		payload.Decoder{},
+		payload.DecodeValidator{},
 		userService,
 	)
 
@@ -75,6 +75,7 @@ func main() {
 
 	// register routes
 	mux.HandleFunc(handler.Authenticate, usrHandler.HandleAuthenticate)
+	mux.HandleFunc(handler.ListUsers, usrHandler.HandleListUsers)
 
 	srv := server.NewHTTP(logger, hdlr, config.Port)
 	if err := run(srv); err != nil {

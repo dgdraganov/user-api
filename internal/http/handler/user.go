@@ -3,7 +3,6 @@ package handler
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"net/http"
 
 	"github.com/dgdraganov/user-api/internal/core"
@@ -14,6 +13,10 @@ import (
 
 var (
 	Authenticate = "POST /api/auth"
+	ListUsers    = "GET /api/users"
+	GetUser      = "GET /api/users/{id}"
+
+	// Register     = "POST /api/register"
 )
 
 type UserHandler struct {
@@ -32,19 +35,17 @@ func NewUserHandler(logger *zap.SugaredLogger, requestValidator RequestValidator
 
 func (h *UserHandler) HandleAuthenticate(w http.ResponseWriter, r *http.Request) {
 	requestId := ""
-	reqIdCtx := r.Context().Value(middleware.RequestIDKey)
-	if reqIdCtx != nil {
-		requestId = reqIdCtx.(string)
+	if reqId, ok := r.Context().Value(middleware.RequestIDKey).(string); ok {
+		requestId = reqId
 	}
 
 	var payload payload.AuthRequest
-	err := h.requestValidator.DecodeJSONPayload(r, &payload)
-	if err != nil || payload.Validate() != nil {
+	err := h.requestValidator.DecodeAndValidateJSONPayload(r, &payload)
+	if err != nil {
 		h.respond(w, Response{
-			Message: "Could not authenticate",
-			Error:   fmt.Errorf("invalid request payload: %w", err).Error(),
-		}, http.StatusBadRequest,
-			requestId)
+			Message: "could not authenticate",
+			Error:   badRequestErr,
+		}, http.StatusBadRequest, requestId)
 		h.logs.Errorw("failed to decode and validate request payload",
 			"error", err,
 			"handler", Authenticate,
@@ -66,7 +67,7 @@ func (h *UserHandler) HandleAuthenticate(w http.ResponseWriter, r *http.Request)
 			resp.Error = err.Error()
 		} else {
 			httpCode = http.StatusInternalServerError
-			resp.Error = "unexpected error occurred"
+			resp.Error = oopsErr
 		}
 
 		h.respond(w, resp, httpCode, requestId)
@@ -79,6 +80,45 @@ func (h *UserHandler) HandleAuthenticate(w http.ResponseWriter, r *http.Request)
 
 	resp := map[string]string{
 		"token": token,
+	}
+	h.respond(w, resp, http.StatusOK, requestId)
+}
+
+func (h *UserHandler) HandleListUsers(w http.ResponseWriter, r *http.Request) {
+	requestId := ""
+	if reqId, ok := r.Context().Value(middleware.RequestIDKey).(string); ok {
+		requestId = reqId
+	}
+
+	var payload payload.UserListRequest
+	err := h.requestValidator.DecodeAndValidateQueryParams(r, &payload)
+	if err != nil {
+		h.respond(w, Response{
+			Message: "could not list users",
+			Error:   badRequestErr,
+		}, http.StatusBadRequest, requestId)
+		h.logs.Errorw("failed to decode and validate query parameters",
+			"error", err,
+			"handler", ListUsers,
+			"request_id", requestId)
+		return
+	}
+
+	users, err := h.userSvc.ListUsers(r.Context(), payload.Page, payload.PageSize)
+	if err != nil {
+		h.respond(w, Response{
+			Message: "could not list users",
+			Error:   oopsErr,
+		}, http.StatusInternalServerError, requestId)
+		h.logs.Errorw("failed to list users",
+			"error", err,
+			"handler", ListUsers,
+			"request_id", requestId)
+		return
+	}
+
+	resp := map[string]interface{}{
+		"users": users,
 	}
 	h.respond(w, resp, http.StatusOK, requestId)
 }

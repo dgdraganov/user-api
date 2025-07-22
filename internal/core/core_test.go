@@ -73,11 +73,14 @@ var _ = Describe("UserService", func() {
 
 		When("user exists and password matches", func() {
 			BeforeEach(func() {
-				fakeRepo.GetUserFromDBReturns(&repository.User{
-					Email:        authMsg.Email,
-					PasswordHash: hashedPassword,
-					ID:           userId,
-				}, nil)
+				fakeRepo.GetUserByEmailStub = func(ctx context.Context, email string, user *repository.User) error {
+					*user = repository.User{
+						Email:        authMsg.Email,
+						PasswordHash: hashedPassword,
+						ID:           userId,
+					}
+					return nil
+				}
 
 				fakeJWT.GenerateReturns(genToken)
 				fakeJWT.SignReturns("signed.token", nil)
@@ -88,8 +91,8 @@ var _ = Describe("UserService", func() {
 				Expect(err).NotTo(HaveOccurred())
 				Expect(token).To(Equal("signed.token"))
 
-				Expect(fakeRepo.GetUserFromDBCallCount()).To(Equal(1))
-				_, email := fakeRepo.GetUserFromDBArgsForCall(0)
+				Expect(fakeRepo.GetUserByEmailCallCount()).To(Equal(1))
+				_, email, _ := fakeRepo.GetUserByEmailArgsForCall(0)
 				Expect(email).To(Equal(authMsg.Email))
 
 				Expect(fakeJWT.GenerateCallCount()).To(Equal(1))
@@ -104,7 +107,9 @@ var _ = Describe("UserService", func() {
 
 		When("user does not exist", func() {
 			BeforeEach(func() {
-				fakeRepo.GetUserFromDBReturns(&repository.User{}, repository.ErrUserNotFound)
+				fakeRepo.GetUserByEmailStub = func(ctx context.Context, email string, user *repository.User) error {
+					return repository.ErrUserNotFound
+				}
 			})
 
 			It("should return user not found error", func() {
@@ -114,10 +119,13 @@ var _ = Describe("UserService", func() {
 
 		When("password does not match", func() {
 			BeforeEach(func() {
-				fakeRepo.GetUserFromDBReturns(&repository.User{
-					Email:        authMsg.Email,
-					PasswordHash: hashedPassword,
-				}, nil)
+				fakeRepo.GetUserByEmailStub = func(ctx context.Context, email string, user *repository.User) error {
+					*user = repository.User{
+						Email:        authMsg.Email,
+						PasswordHash: hashedPassword,
+					}
+					return nil
+				}
 				authMsg.Password = "wrongpass"
 			})
 
@@ -128,11 +136,14 @@ var _ = Describe("UserService", func() {
 
 		When("token signing fails", func() {
 			BeforeEach(func() {
-				fakeRepo.GetUserFromDBReturns(&repository.User{
-					Email:        authMsg.Email,
-					PasswordHash: hashedPassword,
-					ID:           userId,
-				}, nil)
+				fakeRepo.GetUserByEmailStub = func(ctx context.Context, email string, user *repository.User) error {
+					*user = repository.User{
+						Email:        authMsg.Email,
+						PasswordHash: hashedPassword,
+						ID:           userId,
+					}
+					return nil
+				}
 				fakeJWT.SignReturns("", fakeErr)
 			})
 

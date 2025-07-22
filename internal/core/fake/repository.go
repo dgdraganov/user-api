@@ -10,87 +10,162 @@ import (
 )
 
 type Repository struct {
-	GetUserFromDBStub        func(context.Context, string) (*repository.User, error)
-	getUserFromDBMutex       sync.RWMutex
-	getUserFromDBArgsForCall []struct {
+	GetUserByEmailStub        func(context.Context, string, *repository.User) error
+	getUserByEmailMutex       sync.RWMutex
+	getUserByEmailArgsForCall []struct {
 		arg1 context.Context
 		arg2 string
+		arg3 *repository.User
 	}
-	getUserFromDBReturns struct {
-		result1 *repository.User
-		result2 error
+	getUserByEmailReturns struct {
+		result1 error
 	}
-	getUserFromDBReturnsOnCall map[int]struct {
-		result1 *repository.User
-		result2 error
+	getUserByEmailReturnsOnCall map[int]struct {
+		result1 error
+	}
+	ListUsersByPageStub        func(context.Context, int, int, *[]repository.User) error
+	listUsersByPageMutex       sync.RWMutex
+	listUsersByPageArgsForCall []struct {
+		arg1 context.Context
+		arg2 int
+		arg3 int
+		arg4 *[]repository.User
+	}
+	listUsersByPageReturns struct {
+		result1 error
+	}
+	listUsersByPageReturnsOnCall map[int]struct {
+		result1 error
 	}
 	invocations      map[string][][]interface{}
 	invocationsMutex sync.RWMutex
 }
 
-func (fake *Repository) GetUserFromDB(arg1 context.Context, arg2 string) (*repository.User, error) {
-	fake.getUserFromDBMutex.Lock()
-	ret, specificReturn := fake.getUserFromDBReturnsOnCall[len(fake.getUserFromDBArgsForCall)]
-	fake.getUserFromDBArgsForCall = append(fake.getUserFromDBArgsForCall, struct {
+func (fake *Repository) GetUserByEmail(arg1 context.Context, arg2 string, arg3 *repository.User) error {
+	fake.getUserByEmailMutex.Lock()
+	ret, specificReturn := fake.getUserByEmailReturnsOnCall[len(fake.getUserByEmailArgsForCall)]
+	fake.getUserByEmailArgsForCall = append(fake.getUserByEmailArgsForCall, struct {
 		arg1 context.Context
 		arg2 string
-	}{arg1, arg2})
-	stub := fake.GetUserFromDBStub
-	fakeReturns := fake.getUserFromDBReturns
-	fake.recordInvocation("GetUserFromDB", []interface{}{arg1, arg2})
-	fake.getUserFromDBMutex.Unlock()
+		arg3 *repository.User
+	}{arg1, arg2, arg3})
+	stub := fake.GetUserByEmailStub
+	fakeReturns := fake.getUserByEmailReturns
+	fake.recordInvocation("GetUserByEmail", []interface{}{arg1, arg2, arg3})
+	fake.getUserByEmailMutex.Unlock()
 	if stub != nil {
-		return stub(arg1, arg2)
+		return stub(arg1, arg2, arg3)
 	}
 	if specificReturn {
-		return ret.result1, ret.result2
+		return ret.result1
 	}
-	return fakeReturns.result1, fakeReturns.result2
+	return fakeReturns.result1
 }
 
-func (fake *Repository) GetUserFromDBCallCount() int {
-	fake.getUserFromDBMutex.RLock()
-	defer fake.getUserFromDBMutex.RUnlock()
-	return len(fake.getUserFromDBArgsForCall)
+func (fake *Repository) GetUserByEmailCallCount() int {
+	fake.getUserByEmailMutex.RLock()
+	defer fake.getUserByEmailMutex.RUnlock()
+	return len(fake.getUserByEmailArgsForCall)
 }
 
-func (fake *Repository) GetUserFromDBCalls(stub func(context.Context, string) (*repository.User, error)) {
-	fake.getUserFromDBMutex.Lock()
-	defer fake.getUserFromDBMutex.Unlock()
-	fake.GetUserFromDBStub = stub
+func (fake *Repository) GetUserByEmailCalls(stub func(context.Context, string, *repository.User) error) {
+	fake.getUserByEmailMutex.Lock()
+	defer fake.getUserByEmailMutex.Unlock()
+	fake.GetUserByEmailStub = stub
 }
 
-func (fake *Repository) GetUserFromDBArgsForCall(i int) (context.Context, string) {
-	fake.getUserFromDBMutex.RLock()
-	defer fake.getUserFromDBMutex.RUnlock()
-	argsForCall := fake.getUserFromDBArgsForCall[i]
-	return argsForCall.arg1, argsForCall.arg2
+func (fake *Repository) GetUserByEmailArgsForCall(i int) (context.Context, string, *repository.User) {
+	fake.getUserByEmailMutex.RLock()
+	defer fake.getUserByEmailMutex.RUnlock()
+	argsForCall := fake.getUserByEmailArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3
 }
 
-func (fake *Repository) GetUserFromDBReturns(result1 *repository.User, result2 error) {
-	fake.getUserFromDBMutex.Lock()
-	defer fake.getUserFromDBMutex.Unlock()
-	fake.GetUserFromDBStub = nil
-	fake.getUserFromDBReturns = struct {
-		result1 *repository.User
-		result2 error
-	}{result1, result2}
+func (fake *Repository) GetUserByEmailReturns(result1 error) {
+	fake.getUserByEmailMutex.Lock()
+	defer fake.getUserByEmailMutex.Unlock()
+	fake.GetUserByEmailStub = nil
+	fake.getUserByEmailReturns = struct {
+		result1 error
+	}{result1}
 }
 
-func (fake *Repository) GetUserFromDBReturnsOnCall(i int, result1 *repository.User, result2 error) {
-	fake.getUserFromDBMutex.Lock()
-	defer fake.getUserFromDBMutex.Unlock()
-	fake.GetUserFromDBStub = nil
-	if fake.getUserFromDBReturnsOnCall == nil {
-		fake.getUserFromDBReturnsOnCall = make(map[int]struct {
-			result1 *repository.User
-			result2 error
+func (fake *Repository) GetUserByEmailReturnsOnCall(i int, result1 error) {
+	fake.getUserByEmailMutex.Lock()
+	defer fake.getUserByEmailMutex.Unlock()
+	fake.GetUserByEmailStub = nil
+	if fake.getUserByEmailReturnsOnCall == nil {
+		fake.getUserByEmailReturnsOnCall = make(map[int]struct {
+			result1 error
 		})
 	}
-	fake.getUserFromDBReturnsOnCall[i] = struct {
-		result1 *repository.User
-		result2 error
-	}{result1, result2}
+	fake.getUserByEmailReturnsOnCall[i] = struct {
+		result1 error
+	}{result1}
+}
+
+func (fake *Repository) ListUsersByPage(arg1 context.Context, arg2 int, arg3 int, arg4 *[]repository.User) error {
+	fake.listUsersByPageMutex.Lock()
+	ret, specificReturn := fake.listUsersByPageReturnsOnCall[len(fake.listUsersByPageArgsForCall)]
+	fake.listUsersByPageArgsForCall = append(fake.listUsersByPageArgsForCall, struct {
+		arg1 context.Context
+		arg2 int
+		arg3 int
+		arg4 *[]repository.User
+	}{arg1, arg2, arg3, arg4})
+	stub := fake.ListUsersByPageStub
+	fakeReturns := fake.listUsersByPageReturns
+	fake.recordInvocation("ListUsersByPage", []interface{}{arg1, arg2, arg3, arg4})
+	fake.listUsersByPageMutex.Unlock()
+	if stub != nil {
+		return stub(arg1, arg2, arg3, arg4)
+	}
+	if specificReturn {
+		return ret.result1
+	}
+	return fakeReturns.result1
+}
+
+func (fake *Repository) ListUsersByPageCallCount() int {
+	fake.listUsersByPageMutex.RLock()
+	defer fake.listUsersByPageMutex.RUnlock()
+	return len(fake.listUsersByPageArgsForCall)
+}
+
+func (fake *Repository) ListUsersByPageCalls(stub func(context.Context, int, int, *[]repository.User) error) {
+	fake.listUsersByPageMutex.Lock()
+	defer fake.listUsersByPageMutex.Unlock()
+	fake.ListUsersByPageStub = stub
+}
+
+func (fake *Repository) ListUsersByPageArgsForCall(i int) (context.Context, int, int, *[]repository.User) {
+	fake.listUsersByPageMutex.RLock()
+	defer fake.listUsersByPageMutex.RUnlock()
+	argsForCall := fake.listUsersByPageArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3, argsForCall.arg4
+}
+
+func (fake *Repository) ListUsersByPageReturns(result1 error) {
+	fake.listUsersByPageMutex.Lock()
+	defer fake.listUsersByPageMutex.Unlock()
+	fake.ListUsersByPageStub = nil
+	fake.listUsersByPageReturns = struct {
+		result1 error
+	}{result1}
+}
+
+func (fake *Repository) ListUsersByPageReturnsOnCall(i int, result1 error) {
+	fake.listUsersByPageMutex.Lock()
+	defer fake.listUsersByPageMutex.Unlock()
+	fake.ListUsersByPageStub = nil
+	if fake.listUsersByPageReturnsOnCall == nil {
+		fake.listUsersByPageReturnsOnCall = make(map[int]struct {
+			result1 error
+		})
+	}
+	fake.listUsersByPageReturnsOnCall[i] = struct {
+		result1 error
+	}{result1}
 }
 
 func (fake *Repository) Invocations() map[string][][]interface{} {

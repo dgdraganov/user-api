@@ -13,7 +13,8 @@ import (
 
 //counterfeiter:generate -o fake -fake-name Repository . Repository
 type Repository interface {
-	GetUserFromDB(ctx context.Context, email string) (*repository.User, error)
+	GetUserByEmail(ctx context.Context, email string, user *repository.User) error
+	ListUsersByPage(ctx context.Context, page int, pageSize int, users *[]repository.User) error
 }
 
 //counterfeiter:generate -o fake -fake-name JWTIssuer . JWTIssuer

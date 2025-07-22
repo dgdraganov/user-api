@@ -32,8 +32,8 @@ func NewMySqlDB(dsn string) (*MySQL, error) {
 }
 
 // MigrateTable migrates the provided tables to the database schema.
-func (f *MySQL) MigrateTable(tbl ...any) error {
-	err := f.DB.AutoMigrate(tbl...)
+func (u *MySQL) MigrateTable(tbl ...any) error {
+	err := u.DB.AutoMigrate(tbl...)
 	if err != nil {
 		return fmt.Errorf("failed to migrate table: %w", err)
 	}
@@ -42,17 +42,17 @@ func (f *MySQL) MigrateTable(tbl ...any) error {
 }
 
 // InsertToTable inserts the provided records into the specified table.
-func (f *MySQL) InsertToTable(ctx context.Context, records any) error {
-	if err := f.DB.Create(records).Error; err != nil {
+func (u *MySQL) InsertToTable(ctx context.Context, records any) error {
+	if err := u.DB.Create(records).Error; err != nil {
 		return fmt.Errorf("insert to table: %w", err)
 	}
 	return nil
 }
 
 // GetOneBy retrieves a single record from the specified table where the given column matches the provided value.
-func (f *MySQL) GetOneBy(ctx context.Context, column string, value any, entity any) error {
+func (u *MySQL) GetOneBy(ctx context.Context, column string, value any, entity any) error {
 	query := fmt.Sprintf("%s = ?", column)
-	err := f.DB.Where(query, value).First(&entity).Error
+	err := u.DB.Where(query, value).First(&entity).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return ErrNotFound
@@ -63,8 +63,8 @@ func (f *MySQL) GetOneBy(ctx context.Context, column string, value any, entity a
 }
 
 // GetAllBy retrieves all records from the specified table where the given column matches the provided value.
-func (f *MySQL) GetAllBy(ctx context.Context, column string, value any, entity any) error {
-	tx := f.DB.Where(fmt.Sprintf("%s IN (?)", column), value).Find(entity)
+func (u *MySQL) GetAllBy(ctx context.Context, column string, value any, entity any) error {
+	tx := u.DB.Where(fmt.Sprintf("%s IN (?)", column), value).Find(entity)
 	if tx.Error != nil {
 		return fmt.Errorf("getting records by %q: %w", column, tx.Error)
 	}
@@ -72,8 +72,8 @@ func (f *MySQL) GetAllBy(ctx context.Context, column string, value any, entity a
 }
 
 // GetAll retrieves all records from the specified table and stores them in the provided entity object
-func (f *MySQL) GetAll(ctx context.Context, entity any) error {
-	tx := f.DB.Find(entity)
+func (u *MySQL) GetAll(ctx context.Context, entity any) error {
+	tx := u.DB.Find(entity)
 	if tx.Error != nil {
 		return fmt.Errorf("getting all records: %w", tx.Error)
 	}
@@ -81,7 +81,7 @@ func (f *MySQL) GetAll(ctx context.Context, entity any) error {
 }
 
 // SeedTable checks if the table is empty and seeds it with the provided records if it is.
-func (f *MySQL) SeedTable(ctx context.Context, records any) error {
+func (u *MySQL) SeedTable(ctx context.Context, records any) error {
 
 	v := reflect.ValueOf(records)
 	if v.Kind() != reflect.Ptr || v.Elem().Kind() != reflect.Slice {
@@ -96,7 +96,7 @@ func (f *MySQL) SeedTable(ctx context.Context, records any) error {
 	var count int64
 
 	elemType := slice.Index(0).Interface()
-	if err := f.DB.Model(elemType).Count(&count).Error; err != nil {
+	if err := u.DB.Model(elemType).Count(&count).Error; err != nil {
 		return fmt.Errorf("get model count: %w", err)
 	}
 
@@ -104,8 +104,21 @@ func (f *MySQL) SeedTable(ctx context.Context, records any) error {
 		return nil
 	}
 
-	if err := f.DB.Create(records).Error; err != nil {
+	if err := u.DB.Create(records).Error; err != nil {
 		return fmt.Errorf("insert to table: %w", err)
+	}
+
+	return nil
+}
+
+func (u *MySQL) ListByPage(ctx context.Context, page, pageSize int, entity any) error {
+	if page < 1 || pageSize < 1 {
+		return fmt.Errorf("page and pageSize must be greater than 0: (page=%d, pageSize=%d)", page, pageSize)
+	}
+
+	offset := (page - 1) * pageSize
+	if err := u.DB.WithContext(ctx).Offset(offset).Limit(pageSize).Find(entity).Error; err != nil {
+		return fmt.Errorf("paginating records: %w", err)
 	}
 
 	return nil
