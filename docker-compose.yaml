@@ -1,4 +1,3 @@
-version: '3.8'
 
 services:
   app-debug:
@@ -11,9 +10,13 @@ services:
     working_dir: /app
     tty: true
     environment:
-      - PORT=9205
-      - DB_CONNECTION_STRING=userapi:th15_15_s3cr3t@tcp(mysql:3306)/userdb?charset=utf8mb4&parseTime=True&loc=Local
-      - JWT_SECRET=74beb1f05bec22f86792af460b2f1301
+      PORT: 9205
+      DB_CONNECTION_STRING: userapi:th15_15_s3cr3t@tcp(mysql:3306)/userdb?charset=utf8mb4&parseTime=True&loc=Local
+      JWT_SECRET: 74beb1f05bec22f86792af460b2f1301
+      MINIO_ACCESS_KEY: guest
+      MINIO_SECRET_KEY: th15_15_s3cr3t
+      MINIO_ENDPOINT: minio:9000
+      MINIO_BUCKET: user-files-bucket
 
   # user-api:    #DB_CONNECTION_STRING=mysql://root:secret@tcp(mysql:3306)/userdb
   #   build:
@@ -49,6 +52,20 @@ services:
       - mysql_data:/var/lib/mysql  
     restart: unless-stopped
 
+  minio:
+    image: quay.io/minio/minio
+    container_name: minio
+    command: server /data --console-address ":9001"
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      MINIO_ROOT_USER: guest
+      MINIO_ROOT_PASSWORD: th15_15_s3cr3t
+      BUCKET_NAME: user-files-bucket
+    volumes:
+      - minio-data:/data
+
   rabbitmq:
     image: rabbitmq:3-management 
     ports:
@@ -66,3 +83,4 @@ services:
 volumes:
   mysql_data:
   rabbitmq_data:
+  minio-data:

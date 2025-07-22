@@ -7,4 +7,5 @@ type Storage interface {
 	SeedTable(ctx context.Context, records any) error
 	GetOneBy(ctx context.Context, field string, value any, dest any) error
 	ListByPage(ctx context.Context, page, pageSize int, entity any) error
+	InsertToTable(ctx context.Context, records any) error
 }

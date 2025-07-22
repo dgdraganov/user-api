@@ -80,3 +80,11 @@ func (r *UserRepository) ListUsersByPage(ctx context.Context, page int, pageSize
 	}
 	return nil
 }
+
+func (r *UserRepository) SaveFileMetadata(ctx context.Context, fileMetadata FileMetadata) error {
+	err := r.db.InsertToTable(ctx, fileMetadata)
+	if err != nil {
+		return fmt.Errorf("save file metadata: %w", err)
+	}
+	return nil
+}

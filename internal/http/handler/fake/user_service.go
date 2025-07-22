@@ -7,6 +7,7 @@ import (
 
 	"github.com/dgdraganov/user-api/internal/core"
 	"github.com/dgdraganov/user-api/internal/http/handler"
+	"github.com/golang-jwt/jwt"
 )
 
 type UserService struct {
@@ -37,6 +38,20 @@ type UserService struct {
 	}
 	listUsersReturnsOnCall map[int]struct {
 		result1 []core.UserRecord
+		result2 error
+	}
+	ValidateTokenStub        func(context.Context, string) (jwt.MapClaims, error)
+	validateTokenMutex       sync.RWMutex
+	validateTokenArgsForCall []struct {
+		arg1 context.Context
+		arg2 string
+	}
+	validateTokenReturns struct {
+		result1 jwt.MapClaims
+		result2 error
+	}
+	validateTokenReturnsOnCall map[int]struct {
+		result1 jwt.MapClaims
 		result2 error
 	}
 	invocations      map[string][][]interface{}
@@ -170,6 +185,71 @@ func (fake *UserService) ListUsersReturnsOnCall(i int, result1 []core.UserRecord
 	}
 	fake.listUsersReturnsOnCall[i] = struct {
 		result1 []core.UserRecord
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *UserService) ValidateToken(arg1 context.Context, arg2 string) (jwt.MapClaims, error) {
+	fake.validateTokenMutex.Lock()
+	ret, specificReturn := fake.validateTokenReturnsOnCall[len(fake.validateTokenArgsForCall)]
+	fake.validateTokenArgsForCall = append(fake.validateTokenArgsForCall, struct {
+		arg1 context.Context
+		arg2 string
+	}{arg1, arg2})
+	stub := fake.ValidateTokenStub
+	fakeReturns := fake.validateTokenReturns
+	fake.recordInvocation("ValidateToken", []interface{}{arg1, arg2})
+	fake.validateTokenMutex.Unlock()
+	if stub != nil {
+		return stub(arg1, arg2)
+	}
+	if specificReturn {
+		return ret.result1, ret.result2
+	}
+	return fakeReturns.result1, fakeReturns.result2
+}
+
+func (fake *UserService) ValidateTokenCallCount() int {
+	fake.validateTokenMutex.RLock()
+	defer fake.validateTokenMutex.RUnlock()
+	return len(fake.validateTokenArgsForCall)
+}
+
+func (fake *UserService) ValidateTokenCalls(stub func(context.Context, string) (jwt.MapClaims, error)) {
+	fake.validateTokenMutex.Lock()
+	defer fake.validateTokenMutex.Unlock()
+	fake.ValidateTokenStub = stub
+}
+
+func (fake *UserService) ValidateTokenArgsForCall(i int) (context.Context, string) {
+	fake.validateTokenMutex.RLock()
+	defer fake.validateTokenMutex.RUnlock()
+	argsForCall := fake.validateTokenArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2
+}
+
+func (fake *UserService) ValidateTokenReturns(result1 jwt.MapClaims, result2 error) {
+	fake.validateTokenMutex.Lock()
+	defer fake.validateTokenMutex.Unlock()
+	fake.ValidateTokenStub = nil
+	fake.validateTokenReturns = struct {
+		result1 jwt.MapClaims
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *UserService) ValidateTokenReturnsOnCall(i int, result1 jwt.MapClaims, result2 error) {
+	fake.validateTokenMutex.Lock()
+	defer fake.validateTokenMutex.Unlock()
+	fake.ValidateTokenStub = nil
+	if fake.validateTokenReturnsOnCall == nil {
+		fake.validateTokenReturnsOnCall = make(map[int]struct {
+			result1 jwt.MapClaims
+			result2 error
+		})
+	}
+	fake.validateTokenReturnsOnCall[i] = struct {
+		result1 jwt.MapClaims
 		result2 error
 	}{result1, result2}
 }

@@ -14,7 +14,8 @@ import (
 var (
 	Authenticate = "POST /api/auth"
 	ListUsers    = "GET /api/users"
-	GetUser      = "GET /api/users/{id}"
+	//GetUser      = "GET /api/users/{id}"
+	SaveFile = "POST /api/users/{id}/files"
 
 	// Register     = "POST /api/register"
 )
@@ -42,7 +43,7 @@ func (h *UserHandler) HandleAuthenticate(w http.ResponseWriter, r *http.Request)
 	var payload payload.AuthRequest
 	err := h.requestValidator.DecodeAndValidateJSONPayload(r, &payload)
 	if err != nil {
-		h.respond(w, Response{
+		respond(w, Response{
 			Message: "could not authenticate",
 			Error:   badRequestErr,
 		}, http.StatusBadRequest, requestId)
@@ -70,7 +71,7 @@ func (h *UserHandler) HandleAuthenticate(w http.ResponseWriter, r *http.Request)
 			resp.Error = oopsErr
 		}
 
-		h.respond(w, resp, httpCode, requestId)
+		respond(w, resp, httpCode, requestId)
 		h.logs.Errorw("authentication failed",
 			"error", err,
 			"handler", Authenticate,
@@ -81,7 +82,7 @@ func (h *UserHandler) HandleAuthenticate(w http.ResponseWriter, r *http.Request)
 	resp := map[string]string{
 		"token": token,
 	}
-	h.respond(w, resp, http.StatusOK, requestId)
+	respond(w, resp, http.StatusOK, requestId)
 }
 
 func (h *UserHandler) HandleListUsers(w http.ResponseWriter, r *http.Request) {
@@ -93,7 +94,7 @@ func (h *UserHandler) HandleListUsers(w http.ResponseWriter, r *http.Request) {
 	var payload payload.UserListRequest
 	err := h.requestValidator.DecodeAndValidateQueryParams(r, &payload)
 	if err != nil {
-		h.respond(w, Response{
+		respond(w, Response{
 			Message: "could not list users",
 			Error:   badRequestErr,
 		}, http.StatusBadRequest, requestId)
@@ -106,7 +107,7 @@ func (h *UserHandler) HandleListUsers(w http.ResponseWriter, r *http.Request) {
 
 	users, err := h.userSvc.ListUsers(r.Context(), payload.Page, payload.PageSize)
 	if err != nil {
-		h.respond(w, Response{
+		respond(w, Response{
 			Message: "could not list users",
 			Error:   oopsErr,
 		}, http.StatusInternalServerError, requestId)
@@ -120,17 +121,14 @@ func (h *UserHandler) HandleListUsers(w http.ResponseWriter, r *http.Request) {
 	resp := map[string]interface{}{
 		"users": users,
 	}
-	h.respond(w, resp, http.StatusOK, requestId)
+	respond(w, resp, http.StatusOK, requestId)
 }
 
-func (h *UserHandler) respond(w http.ResponseWriter, resp any, code int, requestId string) {
+func respond(w http.ResponseWriter, resp any, code int, requestId string) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(code)
 
 	if err := json.NewEncoder(w).Encode(resp); err != nil {
 		http.Error(w, oopsErr, http.StatusInternalServerError)
-		h.logs.Errorw("failed to encode response",
-			"error", err,
-			"request_id", requestId)
 	}
 }

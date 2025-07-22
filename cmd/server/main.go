@@ -15,6 +15,7 @@ import (
 	"github.com/dgdraganov/user-api/internal/http/handler/middleware"
 	"github.com/dgdraganov/user-api/internal/http/payload"
 	"github.com/dgdraganov/user-api/internal/http/server"
+	"github.com/dgdraganov/user-api/internal/minio"
 	"github.com/dgdraganov/user-api/internal/repository"
 	"github.com/dgdraganov/user-api/pkg/jwt"
 	"github.com/dgdraganov/user-api/pkg/log"
@@ -22,7 +23,6 @@ import (
 )
 
 func main() {
-
 	logger := log.NewZapLogger("user-api", zapcore.InfoLevel)
 
 	config, err := config.NewAppConfig()
@@ -44,7 +44,7 @@ func main() {
 	repo := repository.NewUserRepository(dbConn)
 
 	err = repo.MigrateTables(
-		&repository.File{},
+		&repository.FileMetadata{},
 		&repository.User{},
 	)
 	if err != nil {
@@ -58,11 +58,29 @@ func main() {
 		os.Exit(1)
 	}
 
-	// core service
-	userService := core.NewUserService(logger, repo, jwtService)
+	// minio client
+	minioClient, err := minio.NewMinioClient(config.MinioEndpoint, config.MinioAccessKey, config.MinioSecretKey)
+	if err != nil {
+		logger.Errorw("failed to create minio client", "error", err)
+		os.Exit(1)
+	}
 
-	// handler
+	err = minioClient.CreateBucket(context.Background(), config.MinioBucketName)
+	if err != nil {
+		logger.Errorw("failed to create minio bucket", "error", err)
+		os.Exit(1)
+	}
+
+	// core service
+	userService := core.NewUserService(logger, repo, jwtService, minioClient, config.MinioBucketName)
+
 	usrHandler := handler.NewUserHandler(
+		logger,
+		payload.DecodeValidator{},
+		userService,
+	)
+
+	fileHandler := handler.NewFileHandler(
 		logger,
 		payload.DecodeValidator{},
 		userService,
@@ -76,6 +94,8 @@ func main() {
 	// register routes
 	mux.HandleFunc(handler.Authenticate, usrHandler.HandleAuthenticate)
 	mux.HandleFunc(handler.ListUsers, usrHandler.HandleListUsers)
+
+	mux.HandleFunc(handler.UploadFile, fileHandler.HandleFileUpload)
 
 	srv := server.NewHTTP(logger, hdlr, config.Port)
 	if err := run(srv); err != nil {

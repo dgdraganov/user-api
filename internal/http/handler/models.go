@@ -3,6 +3,7 @@ package handler
 const (
 	oopsErr       = "Oops! Something went wrong. Please try again later."
 	badRequestErr = "Invalid request parameters."
+	uploadFailed  = "File upload failed."
 )
 
 type Response struct {

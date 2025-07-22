@@ -20,6 +20,7 @@ var _ = Describe("UserService", func() {
 	var (
 		fakeRepo   *fake.Repository
 		fakeJWT    *fake.JWTIssuer
+		fakeMinio  *fake.BlobStorage
 		fakeLogger *zap.SugaredLogger
 		ctx        context.Context
 
@@ -31,11 +32,13 @@ var _ = Describe("UserService", func() {
 	BeforeEach(func() {
 		fakeRepo = new(fake.Repository)
 		fakeJWT = new(fake.JWTIssuer)
+		fakeMinio = new(fake.BlobStorage)
+		bucketName := "test-bucket"
 		fakeLogger = zap.NewNop().Sugar()
 		ctx = context.Background()
 		fakeErr = errors.New("fake error")
 
-		usrSvc = core.NewUserService(fakeLogger, fakeRepo, fakeJWT)
+		usrSvc = core.NewUserService(fakeLogger, fakeRepo, fakeJWT, fakeMinio, bucketName)
 	})
 
 	Describe("Authenticate", func() {

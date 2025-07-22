@@ -4,8 +4,11 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"io"
 
 	tokenIssuer "github.com/dgdraganov/user-api/pkg/jwt"
+	"github.com/golang-jwt/jwt"
+	"github.com/google/uuid"
 
 	"github.com/dgdraganov/user-api/internal/repository"
 	"go.uber.org/zap"
@@ -17,17 +20,21 @@ var ErrUserNotFound error = errors.New("user not found")
 
 // UserService is a struct that provides methods to interact with the Ethereum node and the database.
 type UserService struct {
-	logs      *zap.SugaredLogger
-	repo      Repository
-	jwtIssuer JWTIssuer
+	logs       *zap.SugaredLogger
+	repo       Repository
+	jwtIssuer  JWTIssuer
+	minio      BlobStorage
+	bucketName string
 }
 
 // NewUserService is a constructor function for the UserService type.
-func NewUserService(logger *zap.SugaredLogger, repo Repository, jwt JWTIssuer) *UserService {
+func NewUserService(logger *zap.SugaredLogger, repo Repository, jwt JWTIssuer, minio BlobStorage, bucketName string) *UserService {
 	return &UserService{
-		logs:      logger,
-		repo:      repo,
-		jwtIssuer: jwt,
+		logs:       logger,
+		repo:       repo,
+		jwtIssuer:  jwt,
+		minio:      minio,
+		bucketName: bucketName,
 	}
 }
 
@@ -60,6 +67,14 @@ func (f *UserService) Authenticate(ctx context.Context, msg AuthMessage) (string
 	return signed, nil
 }
 
+func (f *UserService) ValidateToken(ctx context.Context, token string) (jwt.MapClaims, error) {
+	claims, err := f.jwtIssuer.Validate(token)
+	if err != nil {
+		return nil, fmt.Errorf("validate token: %w", err)
+	}
+	return claims, nil
+}
+
 func (f *UserService) ListUsers(ctx context.Context, page int, pageSize int) ([]UserRecord, error) {
 	users := []repository.User{}
 	err := f.repo.ListUsersByPage(ctx, page, pageSize, &users)
@@ -69,6 +84,28 @@ func (f *UserService) ListUsers(ctx context.Context, page int, pageSize int) ([]
 
 	userRecords := toUserRecordList(users)
 	return userRecords, nil
+}
+
+func (f *UserService) UploadUserFile(ctx context.Context, objectName string, file io.Reader, fileSize int64) error {
+	err := f.minio.UploadFile(ctx, f.bucketName, objectName, file, fileSize)
+	if err != nil {
+		return fmt.Errorf("upload file to bucket: %w", err)
+	}
+	return nil
+}
+
+func (f *UserService) SaveFileMetadata(ctx context.Context, fileName, bucket, userID string) error {
+	fileMetadata := repository.FileMetadata{
+		ID:         uuid.NewString(),
+		FileName:   fileName,
+		BucketName: bucket,
+		UserID:     userID,
+	}
+	err := f.repo.SaveFileMetadata(ctx, fileMetadata)
+	if err != nil {
+		return fmt.Errorf("save file metadata: %w", err)
+	}
+	return nil
 }
 
 func toUserRecord(u repository.User) UserRecord {

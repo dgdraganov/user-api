@@ -37,6 +37,18 @@ type Repository struct {
 	listUsersByPageReturnsOnCall map[int]struct {
 		result1 error
 	}
+	SaveFileMetadataStub        func(context.Context, repository.FileMetadata) error
+	saveFileMetadataMutex       sync.RWMutex
+	saveFileMetadataArgsForCall []struct {
+		arg1 context.Context
+		arg2 repository.FileMetadata
+	}
+	saveFileMetadataReturns struct {
+		result1 error
+	}
+	saveFileMetadataReturnsOnCall map[int]struct {
+		result1 error
+	}
 	invocations      map[string][][]interface{}
 	invocationsMutex sync.RWMutex
 }
@@ -164,6 +176,68 @@ func (fake *Repository) ListUsersByPageReturnsOnCall(i int, result1 error) {
 		})
 	}
 	fake.listUsersByPageReturnsOnCall[i] = struct {
+		result1 error
+	}{result1}
+}
+
+func (fake *Repository) SaveFileMetadata(arg1 context.Context, arg2 repository.FileMetadata) error {
+	fake.saveFileMetadataMutex.Lock()
+	ret, specificReturn := fake.saveFileMetadataReturnsOnCall[len(fake.saveFileMetadataArgsForCall)]
+	fake.saveFileMetadataArgsForCall = append(fake.saveFileMetadataArgsForCall, struct {
+		arg1 context.Context
+		arg2 repository.FileMetadata
+	}{arg1, arg2})
+	stub := fake.SaveFileMetadataStub
+	fakeReturns := fake.saveFileMetadataReturns
+	fake.recordInvocation("SaveFileMetadata", []interface{}{arg1, arg2})
+	fake.saveFileMetadataMutex.Unlock()
+	if stub != nil {
+		return stub(arg1, arg2)
+	}
+	if specificReturn {
+		return ret.result1
+	}
+	return fakeReturns.result1
+}
+
+func (fake *Repository) SaveFileMetadataCallCount() int {
+	fake.saveFileMetadataMutex.RLock()
+	defer fake.saveFileMetadataMutex.RUnlock()
+	return len(fake.saveFileMetadataArgsForCall)
+}
+
+func (fake *Repository) SaveFileMetadataCalls(stub func(context.Context, repository.FileMetadata) error) {
+	fake.saveFileMetadataMutex.Lock()
+	defer fake.saveFileMetadataMutex.Unlock()
+	fake.SaveFileMetadataStub = stub
+}
+
+func (fake *Repository) SaveFileMetadataArgsForCall(i int) (context.Context, repository.FileMetadata) {
+	fake.saveFileMetadataMutex.RLock()
+	defer fake.saveFileMetadataMutex.RUnlock()
+	argsForCall := fake.saveFileMetadataArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2
+}
+
+func (fake *Repository) SaveFileMetadataReturns(result1 error) {
+	fake.saveFileMetadataMutex.Lock()
+	defer fake.saveFileMetadataMutex.Unlock()
+	fake.SaveFileMetadataStub = nil
+	fake.saveFileMetadataReturns = struct {
+		result1 error
+	}{result1}
+}
+
+func (fake *Repository) SaveFileMetadataReturnsOnCall(i int, result1 error) {
+	fake.saveFileMetadataMutex.Lock()
+	defer fake.saveFileMetadataMutex.Unlock()
+	fake.SaveFileMetadataStub = nil
+	if fake.saveFileMetadataReturnsOnCall == nil {
+		fake.saveFileMetadataReturnsOnCall = make(map[int]struct {
+			result1 error
+		})
+	}
+	fake.saveFileMetadataReturnsOnCall[i] = struct {
 		result1 error
 	}{result1}
 }
