@@ -5,6 +5,7 @@ const (
 	badRequestErr   = "Invalid request parameters."
 	uploadFailed    = "File upload failed."
 	listUsersFailed = "Failed to list users."
+	couldNotGetUser = "Could not get user."
 )
 
 type Response struct {

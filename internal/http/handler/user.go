@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/dgdraganov/user-api/internal/core"
 	"github.com/dgdraganov/user-api/internal/http/handler/middleware"
@@ -16,7 +17,7 @@ import (
 var (
 	Authenticate = "POST /api/auth"
 	ListUsers    = "GET /api/users"
-	GetUser      = "GET /api/users/{id}"
+	GetUser      = "GET /api/users/{guid}"
 	UploadFile   = "POST /api/users/upload"
 )
 
@@ -209,11 +210,61 @@ func (h *UserHandler) HandleFileUpload(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *UserHandler) HandleGetUser(w http.ResponseWriter, r *http.Request) {
-	// requestId := ""
-	// if reqId, ok := r.Context().Value(middleware.RequestIDKey).(string); ok {
-	// 	requestId = reqId
-	// }
+	requestId := ""
+	if reqId, ok := r.Context().Value(middleware.RequestIDKey).(string); ok {
+		requestId = reqId
+	}
 
+	_, err := h.authenticate(r)
+	if err != nil {
+		respond(w, Response{
+			Message: couldNotGetUser,
+			Error:   err.Error(),
+		}, http.StatusUnauthorized)
+		return
+	}
+
+	pathParts := strings.Split(r.URL.Path, "/")
+	userID := pathParts[len(pathParts)-1]
+
+	user, err := h.coreSvc.GetUser(r.Context(), userID)
+	if err != nil {
+		if errors.Is(err, core.ErrUserNotFound) {
+			respond(w, Response{
+				Message: couldNotGetUser,
+				Error:   "No user is found with the provided ID",
+			}, http.StatusNotFound)
+			return
+		}
+		respond(w, Response{
+			Message: couldNotGetUser,
+			Error:   oopsErr,
+		}, http.StatusInternalServerError)
+		h.logs.Errorw("failed to get user",
+			"error", err,
+			"handler", GetUser,
+			"request_id", requestId,
+			"user_id", userID)
+		return
+	}
+
+	userBytes, err := json.Marshal(user)
+	if err != nil {
+		respond(w, Response{
+			Message: couldNotGetUser,
+			Error:   oopsErr,
+		}, http.StatusInternalServerError)
+		h.logs.Errorw("failed to marshal user data",
+			"error", err,
+			"handler", GetUser,
+			"request_id", requestId)
+		return
+	}
+
+	resp := map[string]string{
+		"user": string(userBytes),
+	}
+	respond(w, resp, http.StatusOK)
 }
 
 func (h *UserHandler) authenticate(r *http.Request) (jwt.MapClaims, error) {

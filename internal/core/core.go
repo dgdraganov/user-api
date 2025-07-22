@@ -108,6 +108,19 @@ func (f *UserService) SaveFileMetadata(ctx context.Context, fileName, bucket, us
 	return nil
 }
 
+func (f *UserService) GetUser(ctx context.Context, id string) (UserRecord, error) {
+	user := repository.User{}
+	err := f.repo.GetUserByID(ctx, id, &user)
+	if err != nil {
+		if errors.Is(err, repository.ErrUserNotFound) {
+			return UserRecord{}, ErrUserNotFound
+		}
+		return UserRecord{}, fmt.Errorf("get user from db: %w", err)
+	}
+
+	return toUserRecord(user), nil
+}
+
 func toUserRecord(u repository.User) UserRecord {
 	return UserRecord{
 		ID:        u.ID,

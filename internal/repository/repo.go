@@ -32,8 +32,21 @@ func (r *UserRepository) MigrateTables(tables ...any) error {
 	return err
 }
 
+// GetUserByEmail retrieves a user by their email address.
 func (r *UserRepository) GetUserByEmail(ctx context.Context, email string, user *User) error {
 	err := r.db.GetOneBy(ctx, "email", email, user)
+	if err != nil {
+		if errors.Is(err, db.ErrNotFound) {
+			return ErrUserNotFound
+		}
+		return fmt.Errorf("get user from db: %w", err)
+	}
+
+	return nil
+}
+
+func (r *UserRepository) GetUserByID(ctx context.Context, id string, user *User) error {
+	err := r.db.GetOneBy(ctx, "id", id, user)
 	if err != nil {
 		if errors.Is(err, db.ErrNotFound) {
 			return ErrUserNotFound

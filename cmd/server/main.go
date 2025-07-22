@@ -89,6 +89,7 @@ func main() {
 	mux.HandleFunc(handler.Authenticate, usrHandler.HandleAuthenticate)
 	mux.HandleFunc(handler.ListUsers, usrHandler.HandleListUsers)
 	mux.HandleFunc(handler.UploadFile, usrHandler.HandleFileUpload)
+	mux.HandleFunc(handler.GetUser, usrHandler.HandleGetUser)
 
 	srv := server.NewHTTP(logger, hdlr, config.Port)
 	if err := run(srv); err != nil {

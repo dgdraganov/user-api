@@ -23,6 +23,19 @@ type Repository struct {
 	getUserByEmailReturnsOnCall map[int]struct {
 		result1 error
 	}
+	GetUserByIDStub        func(context.Context, string, *repository.User) error
+	getUserByIDMutex       sync.RWMutex
+	getUserByIDArgsForCall []struct {
+		arg1 context.Context
+		arg2 string
+		arg3 *repository.User
+	}
+	getUserByIDReturns struct {
+		result1 error
+	}
+	getUserByIDReturnsOnCall map[int]struct {
+		result1 error
+	}
 	ListUsersByPageStub        func(context.Context, int, int, *[]repository.User) error
 	listUsersByPageMutex       sync.RWMutex
 	listUsersByPageArgsForCall []struct {
@@ -112,6 +125,69 @@ func (fake *Repository) GetUserByEmailReturnsOnCall(i int, result1 error) {
 		})
 	}
 	fake.getUserByEmailReturnsOnCall[i] = struct {
+		result1 error
+	}{result1}
+}
+
+func (fake *Repository) GetUserByID(arg1 context.Context, arg2 string, arg3 *repository.User) error {
+	fake.getUserByIDMutex.Lock()
+	ret, specificReturn := fake.getUserByIDReturnsOnCall[len(fake.getUserByIDArgsForCall)]
+	fake.getUserByIDArgsForCall = append(fake.getUserByIDArgsForCall, struct {
+		arg1 context.Context
+		arg2 string
+		arg3 *repository.User
+	}{arg1, arg2, arg3})
+	stub := fake.GetUserByIDStub
+	fakeReturns := fake.getUserByIDReturns
+	fake.recordInvocation("GetUserByID", []interface{}{arg1, arg2, arg3})
+	fake.getUserByIDMutex.Unlock()
+	if stub != nil {
+		return stub(arg1, arg2, arg3)
+	}
+	if specificReturn {
+		return ret.result1
+	}
+	return fakeReturns.result1
+}
+
+func (fake *Repository) GetUserByIDCallCount() int {
+	fake.getUserByIDMutex.RLock()
+	defer fake.getUserByIDMutex.RUnlock()
+	return len(fake.getUserByIDArgsForCall)
+}
+
+func (fake *Repository) GetUserByIDCalls(stub func(context.Context, string, *repository.User) error) {
+	fake.getUserByIDMutex.Lock()
+	defer fake.getUserByIDMutex.Unlock()
+	fake.GetUserByIDStub = stub
+}
+
+func (fake *Repository) GetUserByIDArgsForCall(i int) (context.Context, string, *repository.User) {
+	fake.getUserByIDMutex.RLock()
+	defer fake.getUserByIDMutex.RUnlock()
+	argsForCall := fake.getUserByIDArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3
+}
+
+func (fake *Repository) GetUserByIDReturns(result1 error) {
+	fake.getUserByIDMutex.Lock()
+	defer fake.getUserByIDMutex.Unlock()
+	fake.GetUserByIDStub = nil
+	fake.getUserByIDReturns = struct {
+		result1 error
+	}{result1}
+}
+
+func (fake *Repository) GetUserByIDReturnsOnCall(i int, result1 error) {
+	fake.getUserByIDMutex.Lock()
+	defer fake.getUserByIDMutex.Unlock()
+	fake.GetUserByIDStub = nil
+	if fake.getUserByIDReturnsOnCall == nil {
+		fake.getUserByIDReturnsOnCall = make(map[int]struct {
+			result1 error
+		})
+	}
+	fake.getUserByIDReturnsOnCall[i] = struct {
 		result1 error
 	}{result1}
 }

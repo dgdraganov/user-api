@@ -17,6 +17,7 @@ type Repository interface {
 	GetUserByEmail(ctx context.Context, email string, user *repository.User) error
 	ListUsersByPage(ctx context.Context, page int, pageSize int, users *[]repository.User) error
 	SaveFileMetadata(ctx context.Context, fileMetadata repository.FileMetadata) error
+	GetUserByID(ctx context.Context, id string, user *repository.User) error
 }
 
 //counterfeiter:generate -o fake -fake-name JWTIssuer . JWTIssuer
