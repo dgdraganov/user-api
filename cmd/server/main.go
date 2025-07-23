@@ -68,7 +68,7 @@ func main() {
 	}
 
 	// minio client
-	minioClient, err := minio.NewMinioClient(config.MinioEndpoint, config.MinioAccessKey, config.MinioSecretKey)
+	minioClient, err := minio.NewMinioClient(config.MinioAddress, config.MinioAccessKey, config.MinioSecretKey)
 	if err != nil {
 		logger.Errorw("failed to create minio client", "error", err)
 		os.Exit(1)

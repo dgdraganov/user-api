@@ -12,7 +12,7 @@ const (
 	DB_CONNECTION_STRING_ENV     = "DB_CONNECTION_STRING"
 	JWT_SECRET_ENV               = "JWT_SECRET"
 	PORT_ENV                     = "PORT"
-	MINIO_ENDPOINT_ENV           = "MINIO_ENDPOINT"
+	MINIO_ADDRESS_ENV            = "MINIO_ADDRESS"
 	MINIO_ACCESS_KEY_ENV         = "MINIO_ACCESS_KEY"
 	MINIO_SECRET_KEY_ENV         = "MINIO_SECRET_KEY"
 	MINIO_BUCKET_ENV             = "MINIO_BUCKET"
@@ -23,7 +23,7 @@ type AppConfig struct {
 	Port                   string
 	DBConnectionString     string
 	JWTSecret              string
-	MinioEndpoint          string
+	MinioAddress           string
 	MinioAccessKey         string
 	MinioSecretKey         string
 	MinioBucketName        string
@@ -47,9 +47,9 @@ func NewAppConfig() (AppConfig, error) {
 		return AppConfig{}, fmt.Errorf("%w: %s", errEnvVarNotFound, PORT_ENV)
 	}
 
-	minioEndpoint, ok := os.LookupEnv(MINIO_ENDPOINT_ENV)
+	minioAddress, ok := os.LookupEnv(MINIO_ADDRESS_ENV)
 	if !ok {
-		return AppConfig{}, fmt.Errorf("%w: %s", errEnvVarNotFound, MINIO_ENDPOINT_ENV)
+		return AppConfig{}, fmt.Errorf("%w: %s", errEnvVarNotFound, MINIO_ADDRESS_ENV)
 	}
 
 	minioAccessKey, ok := os.LookupEnv(MINIO_ACCESS_KEY_ENV)
@@ -76,7 +76,7 @@ func NewAppConfig() (AppConfig, error) {
 		DBConnectionString:     connStr,
 		JWTSecret:              jwtSecret,
 		Port:                   port,
-		MinioEndpoint:          minioEndpoint,
+		MinioAddress:           minioAddress,
 		MinioAccessKey:         minioAccessKey,
 		MinioSecretKey:         minioSecretKey,
 		MinioBucketName:        minioBucket,

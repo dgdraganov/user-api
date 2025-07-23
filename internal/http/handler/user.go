@@ -141,7 +141,7 @@ func (h *UserHandler) HandleRegisterUser(w http.ResponseWriter, r *http.Request)
 	if err != nil {
 		h.logs.Errorw("failed to publish user registered event",
 			"error", err,
-			"handler", UserUpdate,
+			"handler", UserRegister,
 			"request_id", requestId)
 	}
 
