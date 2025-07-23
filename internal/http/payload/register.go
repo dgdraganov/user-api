@@ -29,7 +29,7 @@ func (r RegisterRequest) Validate() error {
 	return nil
 }
 
-func (r *RegisterRequest) ToMessage() core.RegisterMessage {
+func (r RegisterRequest) ToMessage() core.RegisterMessage {
 	return core.RegisterMessage{
 		FirstName: r.FirstName,
 		LastName:  r.LastName,
@@ -37,4 +37,13 @@ func (r *RegisterRequest) ToMessage() core.RegisterMessage {
 		Age:       r.Age,
 		Password:  r.Password,
 	}
+}
+
+func (r RegisterRequest) ToMap() map[string]any {
+	res := make(map[string]any)
+	res["first_name"] = r.FirstName
+	res["last_name"] = r.LastName
+	res["email"] = r.Email
+	res["age"] = r.Age
+	return res
 }

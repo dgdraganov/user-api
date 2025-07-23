@@ -110,6 +110,14 @@ func (r *UserRepository) CreateUser(ctx context.Context, user User) error {
 	return nil
 }
 
+func (r *UserRepository) DeleteUser(ctx context.Context, userID string) error {
+	err := r.db.DeleteByID(ctx, userID, &User{})
+	if err != nil {
+		return fmt.Errorf("delete user: %w", err)
+	}
+	return nil
+}
+
 func (r *UserRepository) UpdateUser(ctx context.Context, user User) error {
 	err := r.db.UpdateTable(ctx, user)
 	if err != nil {

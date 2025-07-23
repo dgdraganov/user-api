@@ -2,6 +2,7 @@ package core
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
@@ -13,6 +14,10 @@ import (
 	"github.com/dgdraganov/user-api/internal/repository"
 	"go.uber.org/zap"
 	"golang.org/x/crypto/bcrypt"
+)
+
+const (
+	rabbitExchange = "users"
 )
 
 // UserService is a struct that provides methods to interact with the Ethereum node and the database.
@@ -164,10 +169,43 @@ func (f *UserService) UpdateUser(ctx context.Context, msg UpdateUserMessage, use
 		return fmt.Errorf("get user by id: %w", err)
 	}
 
-	userUpdate := msg.ToUser(userID)
+	userUpdate := msg.ToUser(user)
 	err = f.repo.UpdateUser(ctx, userUpdate)
 	if err != nil {
 		return fmt.Errorf("update user: %w", err)
+	}
+	return nil
+}
+
+func (f *UserService) DeleteUser(ctx context.Context, userID string) error {
+	var user repository.User
+	err := f.repo.GetUserByID(ctx, userID, &user)
+	if err != nil {
+		if errors.Is(err, repository.ErrUserNotFound) {
+			return ErrUserNotFound
+		}
+		return fmt.Errorf("get user by id: %w", err)
+	}
+
+	err = f.repo.DeleteUser(ctx, userID)
+	if err != nil {
+		if errors.Is(err, repository.ErrUserNotFound) {
+			return ErrUserNotFound
+		}
+		return fmt.Errorf("delete user: %w", err)
+	}
+	return nil
+}
+
+func (f *UserService) PublishEvent(ctx context.Context, routingKey string, payload interface{}) error {
+	body, err := json.Marshal(payload)
+	if err != nil {
+		return fmt.Errorf("marshal event payload: %w", err)
+	}
+
+	err = f.rabbit.Publish(ctx, rabbitExchange, routingKey, body)
+	if err != nil {
+		return fmt.Errorf("publish event: %w", err)
 	}
 	return nil
 }

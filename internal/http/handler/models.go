@@ -8,6 +8,7 @@ const (
 	couldNotGetUser    = "Could not get user."
 	couldNotRegister   = "Could not register user."
 	couldNotUpdateUser = "Could not update user."
+	couldNotDeleteUser = "Could not delete user."
 )
 
 type Response struct {

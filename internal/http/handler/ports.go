@@ -28,4 +28,6 @@ type CoreService interface {
 	GetUser(ctx context.Context, id string) (core.UserRecord, error)
 	RegisterUser(ctx context.Context, msg core.RegisterMessage) error
 	UpdateUser(ctx context.Context, msg core.UpdateUserMessage, userID string) error
+	PublishEvent(ctx context.Context, routingKey string, payload interface{}) error
+	DeleteUser(ctx context.Context, userID string) error
 }

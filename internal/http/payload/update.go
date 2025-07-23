@@ -35,3 +35,20 @@ func (r UpdateUserRequest) ToMessage() core.UpdateUserMessage {
 		Age:       r.Age,
 	}
 }
+
+func (r UpdateUserRequest) ToMap() map[string]any {
+	res := make(map[string]any)
+	if r.FirstName != "" {
+		res["first_name"] = r.FirstName
+	}
+	if r.LastName != "" {
+		res["last_name"] = r.LastName
+	}
+	if r.Email != "" {
+		res["email"] = r.Email
+	}
+	if r.Age > 0 {
+		res["age"] = r.Age
+	}
+	return res
+}

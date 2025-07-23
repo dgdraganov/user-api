@@ -9,4 +9,5 @@ type Storage interface {
 	ListByPage(ctx context.Context, page, pageSize int, entity any) error
 	InsertToTable(ctx context.Context, records any) error
 	UpdateTable(ctx context.Context, records any) error
+	DeleteByID(ctx context.Context, id string, entity any) error
 }

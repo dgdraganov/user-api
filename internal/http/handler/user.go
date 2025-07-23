@@ -20,6 +20,7 @@ var (
 	UploadFile   = "POST /api/users/upload"
 	UserRegister = "POST /api/users"
 	UserUpdate   = "PUT /api/users"
+	UserDelete   = "DELETE /api/users"
 )
 
 type UserHandler struct {
@@ -87,7 +88,7 @@ func (h *UserHandler) HandleAuthenticate(w http.ResponseWriter, r *http.Request)
 	respond(w, resp, http.StatusOK)
 }
 
-func (h *UserHandler) HandleUserRegister(w http.ResponseWriter, r *http.Request) {
+func (h *UserHandler) HandleRegisterUser(w http.ResponseWriter, r *http.Request) {
 	requestId := ""
 	if reqId, ok := r.Context().Value(middleware.RequestIDKey).(string); ok {
 		requestId = reqId
@@ -131,12 +132,21 @@ func (h *UserHandler) HandleUserRegister(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
+	// send event to RabbitMQ
+	err = h.coreSvc.PublishEvent(r.Context(), "user.event.registered", payload.ToMap())
+	if err != nil {
+		h.logs.Errorw("failed to publish user registered event",
+			"error", err,
+			"handler", UserUpdate,
+			"request_id", requestId)
+	}
+
 	respond(w, Response{
 		Message: "User registered successfully!",
 	}, http.StatusCreated)
 }
 
-func (h *UserHandler) HandleUserUpdate(w http.ResponseWriter, r *http.Request) {
+func (h *UserHandler) HandleUpdateUser(w http.ResponseWriter, r *http.Request) {
 	requestId := ""
 	if reqId, ok := r.Context().Value(middleware.RequestIDKey).(string); ok {
 		requestId = reqId
@@ -188,8 +198,77 @@ func (h *UserHandler) HandleUserUpdate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// send event to RabbitMQ
+	err = h.coreSvc.PublishEvent(r.Context(), "user.event.updated", payload.ToMap())
+	if err != nil {
+		h.logs.Errorw("failed to publish user updated event",
+			"error", err,
+			"handler", UserUpdate,
+			"request_id", requestId)
+	}
+
 	resp := map[string]string{
 		"message": "User updated successfully!",
+	}
+	respond(w, resp, http.StatusOK)
+}
+
+func (h *UserHandler) HandleDeleteUser(w http.ResponseWriter, r *http.Request) {
+	requestId := ""
+	if reqId, ok := r.Context().Value(middleware.RequestIDKey).(string); ok {
+		requestId = reqId
+	}
+
+	claims, err := h.authenticate(r)
+	if err != nil {
+		respond(w, Response{
+			Message: couldNotDeleteUser,
+			Error:   err.Error(),
+		}, http.StatusUnauthorized)
+		return
+	}
+
+	userID, ok := claims["sub"].(string)
+	if !ok {
+		respond(w, Response{
+			Message: couldNotDeleteUser,
+			Error:   "Invalid user ID in token",
+		}, http.StatusInternalServerError)
+		h.logs.Errorw("invalid user ID in token", "handler", UserDelete, "request_id", requestId)
+		return
+	}
+
+	err = h.coreSvc.DeleteUser(r.Context(), userID)
+	if err != nil {
+		if errors.Is(err, core.ErrUserNotFound) {
+			respond(w, Response{
+				Message: couldNotDeleteUser,
+				Error:   "No user found with the provided ID",
+			}, http.StatusNotFound)
+			return
+		}
+		respond(w, Response{
+			Message: couldNotDeleteUser,
+			Error:   oopsErr,
+		}, http.StatusInternalServerError)
+		h.logs.Errorw("failed to delete user",
+			"error", err,
+			"handler", UserDelete,
+			"request_id", requestId)
+		return
+	}
+
+	// send event to RabbitMQ
+	err = h.coreSvc.PublishEvent(r.Context(), "user.event.deleted", map[string]string{"user_id": userID})
+	if err != nil {
+		h.logs.Errorw("failed to publish user deleted event",
+			"error", err,
+			"handler", UserDelete,
+			"request_id", requestId)
+	}
+
+	resp := map[string]string{
+		"message": "User deleted successfully!",
 	}
 	respond(w, resp, http.StatusOK)
 }

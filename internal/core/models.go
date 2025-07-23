@@ -41,22 +41,18 @@ type UpdateUserMessage struct {
 	Age       int    `json:"age"`
 }
 
-func (um UpdateUserMessage) ToUser(userID string) repository.User {
-	user := repository.User{
-		ID: userID,
-	}
-
+func (um UpdateUserMessage) ToUser(existingUser repository.User) repository.User {
 	if um.FirstName != "" {
-		user.FirstName = um.FirstName
+		existingUser.FirstName = um.FirstName
 	}
 	if um.LastName != "" {
-		user.LastName = um.LastName
+		existingUser.LastName = um.LastName
 	}
 	if um.Email != "" {
-		user.Email = um.Email
+		existingUser.Email = um.Email
 	}
 	if um.Age > 0 {
-		user.Age = um.Age
+		existingUser.Age = um.Age
 	}
-	return user
+	return existingUser
 }

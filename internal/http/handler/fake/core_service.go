@@ -26,6 +26,18 @@ type CoreService struct {
 		result1 string
 		result2 error
 	}
+	DeleteUserStub        func(context.Context, string) error
+	deleteUserMutex       sync.RWMutex
+	deleteUserArgsForCall []struct {
+		arg1 context.Context
+		arg2 string
+	}
+	deleteUserReturns struct {
+		result1 error
+	}
+	deleteUserReturnsOnCall map[int]struct {
+		result1 error
+	}
 	GetUserStub        func(context.Context, string) (core.UserRecord, error)
 	getUserMutex       sync.RWMutex
 	getUserArgsForCall []struct {
@@ -54,6 +66,19 @@ type CoreService struct {
 	listUsersReturnsOnCall map[int]struct {
 		result1 []core.UserRecord
 		result2 error
+	}
+	PublishEventStub        func(context.Context, string, interface{}) error
+	publishEventMutex       sync.RWMutex
+	publishEventArgsForCall []struct {
+		arg1 context.Context
+		arg2 string
+		arg3 interface{}
+	}
+	publishEventReturns struct {
+		result1 error
+	}
+	publishEventReturnsOnCall map[int]struct {
+		result1 error
 	}
 	RegisterUserStub        func(context.Context, core.RegisterMessage) error
 	registerUserMutex       sync.RWMutex
@@ -191,6 +216,68 @@ func (fake *CoreService) AuthenticateReturnsOnCall(i int, result1 string, result
 	}{result1, result2}
 }
 
+func (fake *CoreService) DeleteUser(arg1 context.Context, arg2 string) error {
+	fake.deleteUserMutex.Lock()
+	ret, specificReturn := fake.deleteUserReturnsOnCall[len(fake.deleteUserArgsForCall)]
+	fake.deleteUserArgsForCall = append(fake.deleteUserArgsForCall, struct {
+		arg1 context.Context
+		arg2 string
+	}{arg1, arg2})
+	stub := fake.DeleteUserStub
+	fakeReturns := fake.deleteUserReturns
+	fake.recordInvocation("DeleteUser", []interface{}{arg1, arg2})
+	fake.deleteUserMutex.Unlock()
+	if stub != nil {
+		return stub(arg1, arg2)
+	}
+	if specificReturn {
+		return ret.result1
+	}
+	return fakeReturns.result1
+}
+
+func (fake *CoreService) DeleteUserCallCount() int {
+	fake.deleteUserMutex.RLock()
+	defer fake.deleteUserMutex.RUnlock()
+	return len(fake.deleteUserArgsForCall)
+}
+
+func (fake *CoreService) DeleteUserCalls(stub func(context.Context, string) error) {
+	fake.deleteUserMutex.Lock()
+	defer fake.deleteUserMutex.Unlock()
+	fake.DeleteUserStub = stub
+}
+
+func (fake *CoreService) DeleteUserArgsForCall(i int) (context.Context, string) {
+	fake.deleteUserMutex.RLock()
+	defer fake.deleteUserMutex.RUnlock()
+	argsForCall := fake.deleteUserArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2
+}
+
+func (fake *CoreService) DeleteUserReturns(result1 error) {
+	fake.deleteUserMutex.Lock()
+	defer fake.deleteUserMutex.Unlock()
+	fake.DeleteUserStub = nil
+	fake.deleteUserReturns = struct {
+		result1 error
+	}{result1}
+}
+
+func (fake *CoreService) DeleteUserReturnsOnCall(i int, result1 error) {
+	fake.deleteUserMutex.Lock()
+	defer fake.deleteUserMutex.Unlock()
+	fake.DeleteUserStub = nil
+	if fake.deleteUserReturnsOnCall == nil {
+		fake.deleteUserReturnsOnCall = make(map[int]struct {
+			result1 error
+		})
+	}
+	fake.deleteUserReturnsOnCall[i] = struct {
+		result1 error
+	}{result1}
+}
+
 func (fake *CoreService) GetUser(arg1 context.Context, arg2 string) (core.UserRecord, error) {
 	fake.getUserMutex.Lock()
 	ret, specificReturn := fake.getUserReturnsOnCall[len(fake.getUserArgsForCall)]
@@ -320,6 +407,69 @@ func (fake *CoreService) ListUsersReturnsOnCall(i int, result1 []core.UserRecord
 		result1 []core.UserRecord
 		result2 error
 	}{result1, result2}
+}
+
+func (fake *CoreService) PublishEvent(arg1 context.Context, arg2 string, arg3 interface{}) error {
+	fake.publishEventMutex.Lock()
+	ret, specificReturn := fake.publishEventReturnsOnCall[len(fake.publishEventArgsForCall)]
+	fake.publishEventArgsForCall = append(fake.publishEventArgsForCall, struct {
+		arg1 context.Context
+		arg2 string
+		arg3 interface{}
+	}{arg1, arg2, arg3})
+	stub := fake.PublishEventStub
+	fakeReturns := fake.publishEventReturns
+	fake.recordInvocation("PublishEvent", []interface{}{arg1, arg2, arg3})
+	fake.publishEventMutex.Unlock()
+	if stub != nil {
+		return stub(arg1, arg2, arg3)
+	}
+	if specificReturn {
+		return ret.result1
+	}
+	return fakeReturns.result1
+}
+
+func (fake *CoreService) PublishEventCallCount() int {
+	fake.publishEventMutex.RLock()
+	defer fake.publishEventMutex.RUnlock()
+	return len(fake.publishEventArgsForCall)
+}
+
+func (fake *CoreService) PublishEventCalls(stub func(context.Context, string, interface{}) error) {
+	fake.publishEventMutex.Lock()
+	defer fake.publishEventMutex.Unlock()
+	fake.PublishEventStub = stub
+}
+
+func (fake *CoreService) PublishEventArgsForCall(i int) (context.Context, string, interface{}) {
+	fake.publishEventMutex.RLock()
+	defer fake.publishEventMutex.RUnlock()
+	argsForCall := fake.publishEventArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3
+}
+
+func (fake *CoreService) PublishEventReturns(result1 error) {
+	fake.publishEventMutex.Lock()
+	defer fake.publishEventMutex.Unlock()
+	fake.PublishEventStub = nil
+	fake.publishEventReturns = struct {
+		result1 error
+	}{result1}
+}
+
+func (fake *CoreService) PublishEventReturnsOnCall(i int, result1 error) {
+	fake.publishEventMutex.Lock()
+	defer fake.publishEventMutex.Unlock()
+	fake.PublishEventStub = nil
+	if fake.publishEventReturnsOnCall == nil {
+		fake.publishEventReturnsOnCall = make(map[int]struct {
+			result1 error
+		})
+	}
+	fake.publishEventReturnsOnCall[i] = struct {
+		result1 error
+	}{result1}
 }
 
 func (fake *CoreService) RegisterUser(arg1 context.Context, arg2 core.RegisterMessage) error {

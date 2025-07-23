@@ -22,6 +22,18 @@ type Repository struct {
 	createUserReturnsOnCall map[int]struct {
 		result1 error
 	}
+	DeleteUserStub        func(context.Context, string) error
+	deleteUserMutex       sync.RWMutex
+	deleteUserArgsForCall []struct {
+		arg1 context.Context
+		arg2 string
+	}
+	deleteUserReturns struct {
+		result1 error
+	}
+	deleteUserReturnsOnCall map[int]struct {
+		result1 error
+	}
 	GetUserByEmailStub        func(context.Context, string, *repository.User) error
 	getUserByEmailMutex       sync.RWMutex
 	getUserByEmailArgsForCall []struct {
@@ -148,6 +160,68 @@ func (fake *Repository) CreateUserReturnsOnCall(i int, result1 error) {
 		})
 	}
 	fake.createUserReturnsOnCall[i] = struct {
+		result1 error
+	}{result1}
+}
+
+func (fake *Repository) DeleteUser(arg1 context.Context, arg2 string) error {
+	fake.deleteUserMutex.Lock()
+	ret, specificReturn := fake.deleteUserReturnsOnCall[len(fake.deleteUserArgsForCall)]
+	fake.deleteUserArgsForCall = append(fake.deleteUserArgsForCall, struct {
+		arg1 context.Context
+		arg2 string
+	}{arg1, arg2})
+	stub := fake.DeleteUserStub
+	fakeReturns := fake.deleteUserReturns
+	fake.recordInvocation("DeleteUser", []interface{}{arg1, arg2})
+	fake.deleteUserMutex.Unlock()
+	if stub != nil {
+		return stub(arg1, arg2)
+	}
+	if specificReturn {
+		return ret.result1
+	}
+	return fakeReturns.result1
+}
+
+func (fake *Repository) DeleteUserCallCount() int {
+	fake.deleteUserMutex.RLock()
+	defer fake.deleteUserMutex.RUnlock()
+	return len(fake.deleteUserArgsForCall)
+}
+
+func (fake *Repository) DeleteUserCalls(stub func(context.Context, string) error) {
+	fake.deleteUserMutex.Lock()
+	defer fake.deleteUserMutex.Unlock()
+	fake.DeleteUserStub = stub
+}
+
+func (fake *Repository) DeleteUserArgsForCall(i int) (context.Context, string) {
+	fake.deleteUserMutex.RLock()
+	defer fake.deleteUserMutex.RUnlock()
+	argsForCall := fake.deleteUserArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2
+}
+
+func (fake *Repository) DeleteUserReturns(result1 error) {
+	fake.deleteUserMutex.Lock()
+	defer fake.deleteUserMutex.Unlock()
+	fake.DeleteUserStub = nil
+	fake.deleteUserReturns = struct {
+		result1 error
+	}{result1}
+}
+
+func (fake *Repository) DeleteUserReturnsOnCall(i int, result1 error) {
+	fake.deleteUserMutex.Lock()
+	defer fake.deleteUserMutex.Unlock()
+	fake.DeleteUserStub = nil
+	if fake.deleteUserReturnsOnCall == nil {
+		fake.deleteUserReturnsOnCall = make(map[int]struct {
+			result1 error
+		})
+	}
+	fake.deleteUserReturnsOnCall[i] = struct {
 		result1 error
 	}{result1}
 }

@@ -87,6 +87,18 @@ func (u *MySQL) GetAll(ctx context.Context, entity any) error {
 	return nil
 }
 
+// DeleteByID deletes a record from the specified table by its ID.
+func (u *MySQL) DeleteByID(ctx context.Context, id string, entity any) error {
+	tx := u.DB.Where("id = ?", id).Delete(entity)
+	if tx.Error != nil {
+		return fmt.Errorf("deleting record by ID: %w", tx.Error)
+	}
+	if tx.RowsAffected == 0 {
+		return ErrNotFound
+	}
+	return nil
+}
+
 // SeedTable checks if the table is empty and seeds it with the provided records if it is.
 func (u *MySQL) SeedTable(ctx context.Context, records any) error {
 
