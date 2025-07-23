@@ -15,12 +15,14 @@ import (
 
 var (
 	Authenticate = "POST /api/auth"
-	ListUsers    = "GET /api/users"
+
 	GetUser      = "GET /api/users/{guid}"
-	UploadFile   = "POST /api/users/upload"
+	ListUsers    = "GET /api/users"
 	UserRegister = "POST /api/users"
-	UserUpdate   = "PUT /api/users"
-	UserDelete   = "DELETE /api/users"
+	UserUpdate   = "PUT /api/users/{guid}"
+	UserDelete   = "DELETE /api/users/{guid}"
+
+	UploadFile = "POST /api/users/file"
 )
 
 type UserHandler struct {
@@ -161,13 +163,13 @@ func (h *UserHandler) HandleUpdateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	userID, ok := claims["sub"].(string)
-	if !ok {
+	resourceGUID := getIDFromURL(r.URL.Path)
+
+	if !h.isAuthorized(claims, resourceGUID) {
 		respond(w, Response{
 			Message: couldNotUpdateUser,
-			Error:   "Invalid user ID in token",
-		}, http.StatusInternalServerError)
-		h.logs.Errorw("invalid user ID in token", "handler", UploadFile, "request_id", requestId)
+			Error:   "You are not authorized to update this user!",
+		}, http.StatusForbidden)
 		return
 	}
 
@@ -178,14 +180,10 @@ func (h *UserHandler) HandleUpdateUser(w http.ResponseWriter, r *http.Request) {
 			Message: "could not update user",
 			Error:   badRequestErr,
 		}, http.StatusBadRequest)
-		h.logs.Errorw("failed to decode and validate request payload",
-			"error", err,
-			"handler", UserUpdate,
-			"request_id", requestId)
 		return
 	}
 
-	err = h.coreSvc.UpdateUser(r.Context(), payload.ToMessage(), userID)
+	err = h.coreSvc.UpdateUser(r.Context(), payload.ToMessage(), resourceGUID)
 	if err != nil {
 		respond(w, Response{
 			Message: couldNotUpdateUser,
@@ -228,17 +226,17 @@ func (h *UserHandler) HandleDeleteUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	userID, ok := claims["sub"].(string)
-	if !ok {
+	resourceGUID := getIDFromURL(r.URL.Path)
+
+	if !h.isAuthorized(claims, resourceGUID) {
 		respond(w, Response{
 			Message: couldNotDeleteUser,
-			Error:   "Invalid user ID in token",
-		}, http.StatusInternalServerError)
-		h.logs.Errorw("invalid user ID in token", "handler", UserDelete, "request_id", requestId)
+			Error:   "You are not authorized to delete this user!",
+		}, http.StatusForbidden)
 		return
 	}
 
-	err = h.coreSvc.DeleteUser(r.Context(), userID)
+	err = h.coreSvc.DeleteUser(r.Context(), resourceGUID)
 	if err != nil {
 		if errors.Is(err, core.ErrUserNotFound) {
 			respond(w, Response{
@@ -259,11 +257,12 @@ func (h *UserHandler) HandleDeleteUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// send event to RabbitMQ
-	err = h.coreSvc.PublishEvent(r.Context(), "user.event.deleted", map[string]string{"user_id": userID})
+	err = h.coreSvc.PublishEvent(r.Context(), "user.event.deleted", map[string]string{"user_id": resourceGUID})
 	if err != nil {
 		h.logs.Errorw("failed to publish user deleted event",
 			"error", err,
 			"handler", UserDelete,
+			"resource_guid", resourceGUID,
 			"request_id", requestId)
 	}
 
@@ -336,10 +335,9 @@ func (h *UserHandler) HandleGetUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	pathParts := strings.Split(r.URL.Path, "/")
-	userID := pathParts[len(pathParts)-1]
+	resourceGUID := getIDFromURL(r.URL.Path)
 
-	user, err := h.coreSvc.GetUser(r.Context(), userID)
+	user, err := h.coreSvc.GetUser(r.Context(), resourceGUID)
 	if err != nil {
 		if errors.Is(err, core.ErrUserNotFound) {
 			respond(w, Response{
@@ -356,7 +354,7 @@ func (h *UserHandler) HandleGetUser(w http.ResponseWriter, r *http.Request) {
 			"error", err,
 			"handler", GetUser,
 			"request_id", requestId,
-			"user_id", userID)
+			"user_id", resourceGUID)
 		return
 	}
 
@@ -364,6 +362,12 @@ func (h *UserHandler) HandleGetUser(w http.ResponseWriter, r *http.Request) {
 		"user": user,
 	}
 	respond(w, resp, http.StatusOK)
+}
+
+func getIDFromURL(url string) string {
+	pathParts := strings.Split(url, "/")
+	userID := pathParts[len(pathParts)-1]
+	return userID
 }
 
 func (h *UserHandler) authenticate(r *http.Request) (jwt.MapClaims, error) {
@@ -379,6 +383,21 @@ func (h *UserHandler) authenticate(r *http.Request) (jwt.MapClaims, error) {
 	}
 
 	return claims, nil
+}
+
+func (h *UserHandler) isAuthorized(claims jwt.MapClaims, resourceGUID string) bool {
+	currUserGUID, ok := claims["sub"].(string)
+	if !ok {
+		return false
+	}
+
+	if resourceGUID != currUserGUID {
+		role, ok := claims["role"].(string)
+		if !ok || role != "admin" {
+			return false
+		}
+	}
+	return true
 }
 
 func respond(w http.ResponseWriter, resp any, code int) {

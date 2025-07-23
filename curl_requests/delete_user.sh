@@ -14,6 +14,6 @@ if [ -z "$AUTH_TOKEN" ]; then
     exit 1
 fi
 
-curl -X DELETE "http://localhost:9205/api/users" \
+curl -X DELETE "http://localhost:9205/api/users/$USER_ID" \
     -H "AUTH_TOKEN: $AUTH_TOKEN" \
     -H "Content-Type: application/json" 

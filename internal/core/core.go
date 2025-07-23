@@ -60,6 +60,7 @@ func (f *UserService) Authenticate(ctx context.Context, msg AuthMessage) (string
 	tokenInfo := tokenIssuer.TokenInfo{
 		Email:      user.Email,
 		Subject:    user.ID,
+		Role:       string(user.Role),
 		Expiration: 24,
 	}
 	token := f.jwtIssuer.Generate(tokenInfo)
@@ -149,6 +150,7 @@ func (f *UserService) RegisterUser(ctx context.Context, msg RegisterMessage) err
 		LastName:     msg.LastName,
 		Email:        msg.Email,
 		Age:          msg.Age,
+		Role:         repository.RoleUser, // this is default role
 		PasswordHash: passHash,
 	}
 
@@ -216,6 +218,7 @@ func toUserRecord(u repository.User) UserRecord {
 		FirstName: u.FirstName,
 		LastName:  u.LastName,
 		Email:     u.Email,
+		Role:      string(u.Role),
 		Age:       u.Age,
 	}
 }

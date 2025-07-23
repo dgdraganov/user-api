@@ -16,8 +16,8 @@ type UpdateUserRequest struct {
 
 func (r UpdateUserRequest) Validate() error {
 	err := validation.ValidateStruct(&r,
-		validation.Field(&r.FirstName, validation.Length(2, 50)),
-		validation.Field(&r.LastName, validation.Length(2, 50)),
+		validation.Field(&r.FirstName, validation.Length(2, 50), validation.Match(regexName)),
+		validation.Field(&r.LastName, validation.Length(2, 50), validation.Match(regexName)),
 		validation.Field(&r.Age, validation.Min(18), validation.Max(200)),
 		validation.Field(&r.Email, validation.Match(regexEmail)),
 	)

@@ -18,6 +18,7 @@ var ErrTokenExpired = errors.New("token expired")
 type TokenInfo struct {
 	Email      string
 	Subject    string
+	Role       string
 	Expiration time.Duration
 }
 
@@ -37,6 +38,7 @@ func NewJWTService(jwtSecret []byte) *JWTService {
 func (gen *JWTService) Generate(data TokenInfo) *jwt.Token {
 	claims := jwt.MapClaims{
 		"sub":   data.Subject,
+		"role":  data.Role,
 		"iat":   time.Now().Unix(),
 		"exp":   time.Now().Add(data.Expiration * time.Hour).Unix(),
 		"email": data.Email,

@@ -1,12 +1,13 @@
 #! /bin/bash
 
-if [ "$#" -ne 2 ]; then
-    echo "Usage: $0 <first_name> <age>"
+if [ "$#" -ne 3 ]; then
+    echo "Usage: $0 <user_id> <first_name> <age>"
     exit 1
 fi
 
-FIRST_NAME="$1"
-AGE="$2"
+USER_ID="$1"
+FIRST_NAME="$2"
+AGE="$3"
 
 
 # if AUTH_TOKEN is empty return error
@@ -16,7 +17,7 @@ if [ -z "$AUTH_TOKEN" ]; then
     exit 1
 fi
 
-curl -X PUT "http://localhost:9205/api/users" \
+curl -X PUT "http://localhost:9205/api/users/$USER_ID" \
     -H "AUTH_TOKEN: $AUTH_TOKEN" \
     -H "Content-Type: application/json" \
     -d '{

@@ -18,6 +18,4 @@ RESPONSE=$(curl -X POST 'localhost:9205/api/auth' \
 
 echo $RESPONSE
 
-# {"token":"eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6Im1pdGtvQGV4YW1wbGUuY29tIiwiZXhwIjoxNzUzMzYzNTEzLCJpYXQiOjE3NTMyNzcxMTMsInN1YiI6ImJjOTgyYWUyLTM5ZmEtNDkyYi1hMzhlLTU0OWYxMDFiMGRiMCJ9.mczf22UutOYIv0Wscbh3CSfgoTLkvhPNHvmgpFajmDb8yB2JHZhiNbVMTEbl6fNxqMVi8ne7qmU_ICARsqp0qQ"}
-# get the token from the response
 export AUTH_TOKEN=$(echo $RESPONSE | jq -r '.token')

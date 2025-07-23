@@ -1,10 +1,18 @@
 package repository
 
+type Role string
+
+const (
+	RoleUser  Role = "user"
+	RoleAdmin Role = "admin"
+)
+
 type User struct {
 	ID           string         `gorm:"type:varchar(36);primaryKey;autoIncrement:false"`
 	FirstName    string         `gorm:"type:varchar(255);not null"`
 	LastName     string         `gorm:"type:varchar(255);not null"`
 	PasswordHash string         `gorm:"not null"`
+	Role         Role           `gorm:"type:enum('user','admin');not null;default:'user'"`
 	Age          int            `gorm:"not null;check:age >= 18"`
 	Email        string         `gorm:"type:varchar(255);uniqueIndex;not null"`
 	Files        []FileMetadata `gorm:"foreignKey:UserID;references:ID"`
