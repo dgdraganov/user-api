@@ -82,7 +82,14 @@ func main() {
 	}
 
 	// core service
-	userService := core.NewUserService(logger, repo, jwtService, minioClient, config.MinioBucketName)
+	userService := core.NewUserService(
+		logger,
+		repo,
+		rbMQ,
+		jwtService,
+		minioClient,
+		config.MinioBucketName,
+	)
 
 	usrHandler := handler.NewUserHandler(
 		logger,
@@ -100,6 +107,7 @@ func main() {
 	mux.HandleFunc(handler.ListUsers, usrHandler.HandleListUsers)
 	mux.HandleFunc(handler.UploadFile, usrHandler.HandleFileUpload)
 	mux.HandleFunc(handler.GetUser, usrHandler.HandleGetUser)
+	mux.HandleFunc(handler.Register, usrHandler.HandleRegister)
 
 	srv := server.NewHTTP(logger, hdlr, config.Port)
 	if err := run(srv); err != nil {

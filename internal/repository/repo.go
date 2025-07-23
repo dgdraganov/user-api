@@ -101,3 +101,11 @@ func (r *UserRepository) SaveFileMetadata(ctx context.Context, fileMetadata File
 	}
 	return nil
 }
+
+func (r *UserRepository) CreateUser(ctx context.Context, user User) error {
+	err := r.db.InsertToTable(ctx, user)
+	if err != nil {
+		return fmt.Errorf("create user: %w", err)
+	}
+	return nil
+}

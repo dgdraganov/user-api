@@ -1,5 +1,12 @@
 package core
 
+import "errors"
+
+var (
+	// error user already exists
+	ErrUserAlreadyExists = errors.New("user already exists")
+)
+
 type AuthMessage struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`
@@ -11,4 +18,12 @@ type UserRecord struct {
 	LastName  string `json:"last_name"`
 	Email     string `json:"email"`
 	Age       int    `json:"age"`
+}
+
+type RegisterMessage struct {
+	FirstName string `json:"first_name"`
+	LastName  string `json:"last_name"`
+	Email     string `json:"email"`
+	Age       int    `json:"age"`
+	Password  string `json:"password"`
 }

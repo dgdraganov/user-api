@@ -26,4 +26,5 @@ type CoreService interface {
 	UploadUserFile(ctx context.Context, objectName string, file io.Reader, fileSize int64) error
 	SaveFileMetadata(ctx context.Context, fileName, bucket, userID string) error
 	GetUser(ctx context.Context, id string) (core.UserRecord, error)
+	RegisterUser(ctx context.Context, msg core.RegisterMessage) error
 }

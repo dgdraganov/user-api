@@ -10,6 +10,18 @@ import (
 )
 
 type Repository struct {
+	CreateUserStub        func(context.Context, repository.User) error
+	createUserMutex       sync.RWMutex
+	createUserArgsForCall []struct {
+		arg1 context.Context
+		arg2 repository.User
+	}
+	createUserReturns struct {
+		result1 error
+	}
+	createUserReturnsOnCall map[int]struct {
+		result1 error
+	}
 	GetUserByEmailStub        func(context.Context, string, *repository.User) error
 	getUserByEmailMutex       sync.RWMutex
 	getUserByEmailArgsForCall []struct {
@@ -64,6 +76,68 @@ type Repository struct {
 	}
 	invocations      map[string][][]interface{}
 	invocationsMutex sync.RWMutex
+}
+
+func (fake *Repository) CreateUser(arg1 context.Context, arg2 repository.User) error {
+	fake.createUserMutex.Lock()
+	ret, specificReturn := fake.createUserReturnsOnCall[len(fake.createUserArgsForCall)]
+	fake.createUserArgsForCall = append(fake.createUserArgsForCall, struct {
+		arg1 context.Context
+		arg2 repository.User
+	}{arg1, arg2})
+	stub := fake.CreateUserStub
+	fakeReturns := fake.createUserReturns
+	fake.recordInvocation("CreateUser", []interface{}{arg1, arg2})
+	fake.createUserMutex.Unlock()
+	if stub != nil {
+		return stub(arg1, arg2)
+	}
+	if specificReturn {
+		return ret.result1
+	}
+	return fakeReturns.result1
+}
+
+func (fake *Repository) CreateUserCallCount() int {
+	fake.createUserMutex.RLock()
+	defer fake.createUserMutex.RUnlock()
+	return len(fake.createUserArgsForCall)
+}
+
+func (fake *Repository) CreateUserCalls(stub func(context.Context, repository.User) error) {
+	fake.createUserMutex.Lock()
+	defer fake.createUserMutex.Unlock()
+	fake.CreateUserStub = stub
+}
+
+func (fake *Repository) CreateUserArgsForCall(i int) (context.Context, repository.User) {
+	fake.createUserMutex.RLock()
+	defer fake.createUserMutex.RUnlock()
+	argsForCall := fake.createUserArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2
+}
+
+func (fake *Repository) CreateUserReturns(result1 error) {
+	fake.createUserMutex.Lock()
+	defer fake.createUserMutex.Unlock()
+	fake.CreateUserStub = nil
+	fake.createUserReturns = struct {
+		result1 error
+	}{result1}
+}
+
+func (fake *Repository) CreateUserReturnsOnCall(i int, result1 error) {
+	fake.createUserMutex.Lock()
+	defer fake.createUserMutex.Unlock()
+	fake.CreateUserStub = nil
+	if fake.createUserReturnsOnCall == nil {
+		fake.createUserReturnsOnCall = make(map[int]struct {
+			result1 error
+		})
+	}
+	fake.createUserReturnsOnCall[i] = struct {
+		result1 error
+	}{result1}
 }
 
 func (fake *Repository) GetUserByEmail(arg1 context.Context, arg2 string, arg3 *repository.User) error {

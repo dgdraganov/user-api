@@ -1,6 +1,7 @@
 package rabbit
 
 import (
+	"context"
 	"fmt"
 
 	amqp "github.com/rabbitmq/amqp091-go"
@@ -26,7 +27,7 @@ func NewRabbit(connStr string) (*Rabbit, error) {
 	}, nil
 }
 
-func (r *Rabbit) Publish(exchange, routingKey string, body []byte) error {
+func (r *Rabbit) Publish(ctx context.Context, exchange, routingKey string, body []byte) error {
 	err := r.channel.Publish(
 		exchange,
 		routingKey,

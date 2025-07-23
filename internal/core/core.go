@@ -123,6 +123,40 @@ func (f *UserService) GetUser(ctx context.Context, id string) (UserRecord, error
 	return toUserRecord(user), nil
 }
 
+func (f *UserService) RegisterUser(ctx context.Context, msg RegisterMessage) error {
+	existingUser := repository.User{}
+	err := f.repo.GetUserByEmail(ctx, msg.Email, &existingUser)
+	if err != nil {
+		if !errors.Is(err, repository.ErrUserNotFound) {
+			return fmt.Errorf("check if user exists: %w", err)
+		}
+	}
+
+	if existingUser.ID != "" {
+		return ErrUserAlreadyExists
+	}
+
+	passHash, err := hashPassword(msg.Password)
+	if err != nil {
+		return fmt.Errorf("hash password: %w", err)
+	}
+
+	user := repository.User{
+		ID:           uuid.NewString(),
+		FirstName:    msg.FirstName,
+		LastName:     msg.LastName,
+		Email:        msg.Email,
+		Age:          msg.Age,
+		PasswordHash: passHash,
+	}
+
+	err = f.repo.CreateUser(ctx, user)
+	if err != nil {
+		return fmt.Errorf("create user in db: %w", err)
+	}
+	return nil
+}
+
 func toUserRecord(u repository.User) UserRecord {
 	return UserRecord{
 		ID:        u.ID,
@@ -139,4 +173,9 @@ func toUserRecordList(users []repository.User) []UserRecord {
 		userRecords = append(userRecords, toUserRecord(u))
 	}
 	return userRecords
+}
+
+func hashPassword(password string) (string, error) {
+	bytes, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	return string(bytes), err
 }

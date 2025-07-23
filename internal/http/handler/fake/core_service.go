@@ -55,6 +55,18 @@ type CoreService struct {
 		result1 []core.UserRecord
 		result2 error
 	}
+	RegisterUserStub        func(context.Context, core.RegisterMessage) error
+	registerUserMutex       sync.RWMutex
+	registerUserArgsForCall []struct {
+		arg1 context.Context
+		arg2 core.RegisterMessage
+	}
+	registerUserReturns struct {
+		result1 error
+	}
+	registerUserReturnsOnCall map[int]struct {
+		result1 error
+	}
 	SaveFileMetadataStub        func(context.Context, string, string, string) error
 	saveFileMetadataMutex       sync.RWMutex
 	saveFileMetadataArgsForCall []struct {
@@ -295,6 +307,68 @@ func (fake *CoreService) ListUsersReturnsOnCall(i int, result1 []core.UserRecord
 		result1 []core.UserRecord
 		result2 error
 	}{result1, result2}
+}
+
+func (fake *CoreService) RegisterUser(arg1 context.Context, arg2 core.RegisterMessage) error {
+	fake.registerUserMutex.Lock()
+	ret, specificReturn := fake.registerUserReturnsOnCall[len(fake.registerUserArgsForCall)]
+	fake.registerUserArgsForCall = append(fake.registerUserArgsForCall, struct {
+		arg1 context.Context
+		arg2 core.RegisterMessage
+	}{arg1, arg2})
+	stub := fake.RegisterUserStub
+	fakeReturns := fake.registerUserReturns
+	fake.recordInvocation("RegisterUser", []interface{}{arg1, arg2})
+	fake.registerUserMutex.Unlock()
+	if stub != nil {
+		return stub(arg1, arg2)
+	}
+	if specificReturn {
+		return ret.result1
+	}
+	return fakeReturns.result1
+}
+
+func (fake *CoreService) RegisterUserCallCount() int {
+	fake.registerUserMutex.RLock()
+	defer fake.registerUserMutex.RUnlock()
+	return len(fake.registerUserArgsForCall)
+}
+
+func (fake *CoreService) RegisterUserCalls(stub func(context.Context, core.RegisterMessage) error) {
+	fake.registerUserMutex.Lock()
+	defer fake.registerUserMutex.Unlock()
+	fake.RegisterUserStub = stub
+}
+
+func (fake *CoreService) RegisterUserArgsForCall(i int) (context.Context, core.RegisterMessage) {
+	fake.registerUserMutex.RLock()
+	defer fake.registerUserMutex.RUnlock()
+	argsForCall := fake.registerUserArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2
+}
+
+func (fake *CoreService) RegisterUserReturns(result1 error) {
+	fake.registerUserMutex.Lock()
+	defer fake.registerUserMutex.Unlock()
+	fake.RegisterUserStub = nil
+	fake.registerUserReturns = struct {
+		result1 error
+	}{result1}
+}
+
+func (fake *CoreService) RegisterUserReturnsOnCall(i int, result1 error) {
+	fake.registerUserMutex.Lock()
+	defer fake.registerUserMutex.Unlock()
+	fake.RegisterUserStub = nil
+	if fake.registerUserReturnsOnCall == nil {
+		fake.registerUserReturnsOnCall = make(map[int]struct {
+			result1 error
+		})
+	}
+	fake.registerUserReturnsOnCall[i] = struct {
+		result1 error
+	}{result1}
 }
 
 func (fake *CoreService) SaveFileMetadata(arg1 context.Context, arg2 string, arg3 string, arg4 string) error {
