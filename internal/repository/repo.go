@@ -113,7 +113,7 @@ func (r *UserRepository) CreateUser(ctx context.Context, user User) error {
 }
 
 func (r *UserRepository) DeleteUser(ctx context.Context, userID string) error {
-	err := r.db.DeleteByID(ctx, userID, &User{})
+	err := r.db.DeleteBy(ctx, "id", userID, &User{})
 	if err != nil {
 		return fmt.Errorf("delete user: %w", err)
 	}
@@ -124,6 +124,22 @@ func (r *UserRepository) UpdateUser(ctx context.Context, user User) error {
 	err := r.db.UpdateTable(ctx, user)
 	if err != nil {
 		return fmt.Errorf("update user: %w", err)
+	}
+	return nil
+}
+
+func (r *UserRepository) ListFilesByUserID(ctx context.Context, userID string, files *[]FileMetadata) error {
+	err := r.db.GetAllBy(ctx, "user_id", userID, files)
+	if err != nil {
+		return fmt.Errorf("list files by user id: %w", err)
+	}
+	return nil
+}
+
+func (r *UserRepository) DeleteUserFiles(ctx context.Context, userID string) error {
+	err := r.db.DeleteBy(ctx, "user_id", userID, &FileMetadata{})
+	if err != nil {
+		return fmt.Errorf("delete files by user id: %w", err)
 	}
 	return nil
 }

@@ -22,7 +22,9 @@ var (
 	UserUpdate   = "PUT /api/users/{guid}"
 	UserDelete   = "DELETE /api/users/{guid}"
 
-	UploadFile = "POST /api/users/file"
+	UploadFile      = "POST /api/users/file"
+	ListFiles       = "GET /api/users/{guid}/files"
+	DeleteUserFiles = "DELETE /api/users/{guid}/files"
 )
 
 type UserHandler struct {
@@ -364,12 +366,6 @@ func (h *UserHandler) HandleGetUser(w http.ResponseWriter, r *http.Request) {
 	respond(w, resp, http.StatusOK)
 }
 
-func getIDFromURL(url string) string {
-	pathParts := strings.Split(url, "/")
-	userID := pathParts[len(pathParts)-1]
-	return userID
-}
-
 func (h *UserHandler) authenticate(r *http.Request) (jwt.MapClaims, error) {
 
 	authToken := r.Header.Get("AUTH_TOKEN")
@@ -407,4 +403,10 @@ func respond(w http.ResponseWriter, resp any, code int) {
 	if err := json.NewEncoder(w).Encode(resp); err != nil {
 		http.Error(w, oopsErr, http.StatusInternalServerError)
 	}
+}
+
+func getIDFromURL(url string) string {
+	pathParts := strings.Split(url, "/")
+	userID := pathParts[len(pathParts)-1]
+	return userID
 }

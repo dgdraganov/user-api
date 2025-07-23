@@ -21,6 +21,8 @@ type Repository interface {
 	CreateUser(ctx context.Context, user repository.User) error
 	UpdateUser(ctx context.Context, user repository.User) error
 	DeleteUser(ctx context.Context, userID string) error
+	ListFilesByUserID(ctx context.Context, userID string, files *[]repository.FileMetadata) error
+	DeleteUserFiles(ctx context.Context, userID string) error
 }
 
 //counterfeiter:generate -o fake -fake-name JWTIssuer . JWTIssuer
@@ -33,6 +35,7 @@ type JWTIssuer interface {
 //counterfeiter:generate -o fake -fake-name BlobStorage . BlobStorage
 type BlobStorage interface {
 	UploadFile(ctx context.Context, bucketName, objectName string, file io.Reader, fileSize int64) error
+	DeleteFile(ctx context.Context, bucketName, objectName string) error
 }
 
 //counterfeiter:generate -o fake -fake-name MessageBroker . MessageBroker

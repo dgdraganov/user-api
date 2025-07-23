@@ -30,4 +30,6 @@ type CoreService interface {
 	UpdateUser(ctx context.Context, msg core.UpdateUserMessage, userID string) error
 	PublishEvent(ctx context.Context, routingKey string, payload interface{}) error
 	DeleteUser(ctx context.Context, userID string) error
+	ListUserFiles(ctx context.Context, resourceGUID string) ([]core.FileRecord, error)
+	DeleteUserFiles(ctx context.Context, resourceGUID string) error
 }

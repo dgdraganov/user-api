@@ -88,14 +88,22 @@ func (u *MySQL) GetAll(ctx context.Context, entity any) error {
 }
 
 // DeleteByID deletes a record from the specified table by its ID.
-func (u *MySQL) DeleteByID(ctx context.Context, id string, entity any) error {
-	tx := u.DB.Where("id = ?", id).Delete(entity)
+// func (u *MySQL) DeleteByID(ctx context.Context, id string, entity any) error {
+// 	tx := u.DB.Where("id = ?", id).Delete(entity)
+// 	if tx.Error != nil {
+// 		return fmt.Errorf("deleting record by ID: %w", tx.Error)
+// 	}
+
+// 	return nil
+// }
+
+// DeleteByID deletes a record from the specified table by its ID.
+func (u *MySQL) DeleteBy(ctx context.Context, key string, value any, entity any) error {
+	tx := u.DB.Where(fmt.Sprintf("%s = ?", key), value).Delete(entity)
 	if tx.Error != nil {
-		return fmt.Errorf("deleting record by ID: %w", tx.Error)
+		return fmt.Errorf("deleting record by %q: %w", key, tx.Error)
 	}
-	if tx.RowsAffected == 0 {
-		return ErrNotFound
-	}
+
 	return nil
 }
 

@@ -212,6 +212,40 @@ func (f *UserService) PublishEvent(ctx context.Context, routingKey string, paylo
 	return nil
 }
 
+func (f *UserService) ListUserFiles(ctx context.Context, userGUID string) ([]FileRecord, error) {
+	var files []repository.FileMetadata
+	err := f.repo.ListFilesByUserID(ctx, userGUID, &files)
+	if err != nil {
+		return nil, fmt.Errorf("list user files: %w", err)
+	}
+
+	fileRecs := toFileRecordList(files)
+
+	return fileRecs, nil
+}
+
+func (f *UserService) DeleteUserFiles(ctx context.Context, userGUID string) error {
+	var files []repository.FileMetadata
+	err := f.repo.ListFilesByUserID(ctx, userGUID, &files)
+	if err != nil {
+		return fmt.Errorf("list user files: %w", err)
+	}
+
+	for _, file := range files {
+		fileName := fmt.Sprintf("%s/%s", userGUID, file.FileName)
+		err = f.minio.DeleteFile(ctx, f.bucketName, fileName)
+		if err != nil {
+			return fmt.Errorf("delete file from bucket: %w", err)
+		}
+	}
+
+	err = f.repo.DeleteUserFiles(ctx, userGUID)
+	if err != nil {
+		return fmt.Errorf("delete user files: %w", err)
+	}
+	return nil
+}
+
 func toUserRecord(u repository.User) UserRecord {
 	return UserRecord{
 		ID:        u.ID,
@@ -224,11 +258,27 @@ func toUserRecord(u repository.User) UserRecord {
 }
 
 func toUserRecordList(users []repository.User) []UserRecord {
-	var userRecords []UserRecord
+	userRecords := make([]UserRecord, 0, len(users))
 	for _, u := range users {
 		userRecords = append(userRecords, toUserRecord(u))
 	}
 	return userRecords
+}
+
+func toFileRecord(f repository.FileMetadata) FileRecord {
+	return FileRecord{
+		ID:       f.ID,
+		FileName: f.FileName,
+		Bucket:   f.BucketName,
+	}
+}
+
+func toFileRecordList(files []repository.FileMetadata) []FileRecord {
+	fileRecords := make([]FileRecord, 0, len(files))
+	for _, file := range files {
+		fileRecords = append(fileRecords, toFileRecord(file))
+	}
+	return fileRecords
 }
 
 func hashPassword(password string) (string, error) {

@@ -1,7 +1,7 @@
 #! /bin/bash
 
 if [ "$#" -ne 1 ]; then
-    echo "Usage: $0 <file_path>"
+    echo "Usage: $0 <user_id>"
     exit 1
 fi
 
@@ -12,8 +12,7 @@ if [ -z "$AUTH_TOKEN" ]; then
     exit 1
 fi
 
-FILE_PATH="$1"
+USER_ID="$1"
 
-curl -X POST http://localhost:9205/api/users/file \
-    -H "AUTH_TOKEN: $AUTH_TOKEN" \
-    -F "file=@$FILE_PATH"
+curl -X GET http://localhost:9205/api/users/$USER_ID/files \
+    -H "AUTH_TOKEN: $AUTH_TOKEN"

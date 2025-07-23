@@ -34,6 +34,18 @@ type Repository struct {
 	deleteUserReturnsOnCall map[int]struct {
 		result1 error
 	}
+	DeleteUserFilesStub        func(context.Context, string) error
+	deleteUserFilesMutex       sync.RWMutex
+	deleteUserFilesArgsForCall []struct {
+		arg1 context.Context
+		arg2 string
+	}
+	deleteUserFilesReturns struct {
+		result1 error
+	}
+	deleteUserFilesReturnsOnCall map[int]struct {
+		result1 error
+	}
 	GetUserByEmailStub        func(context.Context, string, *repository.User) error
 	getUserByEmailMutex       sync.RWMutex
 	getUserByEmailArgsForCall []struct {
@@ -58,6 +70,19 @@ type Repository struct {
 		result1 error
 	}
 	getUserByIDReturnsOnCall map[int]struct {
+		result1 error
+	}
+	ListFilesByUserIDStub        func(context.Context, string, *[]repository.FileMetadata) error
+	listFilesByUserIDMutex       sync.RWMutex
+	listFilesByUserIDArgsForCall []struct {
+		arg1 context.Context
+		arg2 string
+		arg3 *[]repository.FileMetadata
+	}
+	listFilesByUserIDReturns struct {
+		result1 error
+	}
+	listFilesByUserIDReturnsOnCall map[int]struct {
 		result1 error
 	}
 	ListUsersByPageStub        func(context.Context, int, int, *[]repository.User) error
@@ -226,6 +251,68 @@ func (fake *Repository) DeleteUserReturnsOnCall(i int, result1 error) {
 	}{result1}
 }
 
+func (fake *Repository) DeleteUserFiles(arg1 context.Context, arg2 string) error {
+	fake.deleteUserFilesMutex.Lock()
+	ret, specificReturn := fake.deleteUserFilesReturnsOnCall[len(fake.deleteUserFilesArgsForCall)]
+	fake.deleteUserFilesArgsForCall = append(fake.deleteUserFilesArgsForCall, struct {
+		arg1 context.Context
+		arg2 string
+	}{arg1, arg2})
+	stub := fake.DeleteUserFilesStub
+	fakeReturns := fake.deleteUserFilesReturns
+	fake.recordInvocation("DeleteUserFiles", []interface{}{arg1, arg2})
+	fake.deleteUserFilesMutex.Unlock()
+	if stub != nil {
+		return stub(arg1, arg2)
+	}
+	if specificReturn {
+		return ret.result1
+	}
+	return fakeReturns.result1
+}
+
+func (fake *Repository) DeleteUserFilesCallCount() int {
+	fake.deleteUserFilesMutex.RLock()
+	defer fake.deleteUserFilesMutex.RUnlock()
+	return len(fake.deleteUserFilesArgsForCall)
+}
+
+func (fake *Repository) DeleteUserFilesCalls(stub func(context.Context, string) error) {
+	fake.deleteUserFilesMutex.Lock()
+	defer fake.deleteUserFilesMutex.Unlock()
+	fake.DeleteUserFilesStub = stub
+}
+
+func (fake *Repository) DeleteUserFilesArgsForCall(i int) (context.Context, string) {
+	fake.deleteUserFilesMutex.RLock()
+	defer fake.deleteUserFilesMutex.RUnlock()
+	argsForCall := fake.deleteUserFilesArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2
+}
+
+func (fake *Repository) DeleteUserFilesReturns(result1 error) {
+	fake.deleteUserFilesMutex.Lock()
+	defer fake.deleteUserFilesMutex.Unlock()
+	fake.DeleteUserFilesStub = nil
+	fake.deleteUserFilesReturns = struct {
+		result1 error
+	}{result1}
+}
+
+func (fake *Repository) DeleteUserFilesReturnsOnCall(i int, result1 error) {
+	fake.deleteUserFilesMutex.Lock()
+	defer fake.deleteUserFilesMutex.Unlock()
+	fake.DeleteUserFilesStub = nil
+	if fake.deleteUserFilesReturnsOnCall == nil {
+		fake.deleteUserFilesReturnsOnCall = make(map[int]struct {
+			result1 error
+		})
+	}
+	fake.deleteUserFilesReturnsOnCall[i] = struct {
+		result1 error
+	}{result1}
+}
+
 func (fake *Repository) GetUserByEmail(arg1 context.Context, arg2 string, arg3 *repository.User) error {
 	fake.getUserByEmailMutex.Lock()
 	ret, specificReturn := fake.getUserByEmailReturnsOnCall[len(fake.getUserByEmailArgsForCall)]
@@ -348,6 +435,69 @@ func (fake *Repository) GetUserByIDReturnsOnCall(i int, result1 error) {
 		})
 	}
 	fake.getUserByIDReturnsOnCall[i] = struct {
+		result1 error
+	}{result1}
+}
+
+func (fake *Repository) ListFilesByUserID(arg1 context.Context, arg2 string, arg3 *[]repository.FileMetadata) error {
+	fake.listFilesByUserIDMutex.Lock()
+	ret, specificReturn := fake.listFilesByUserIDReturnsOnCall[len(fake.listFilesByUserIDArgsForCall)]
+	fake.listFilesByUserIDArgsForCall = append(fake.listFilesByUserIDArgsForCall, struct {
+		arg1 context.Context
+		arg2 string
+		arg3 *[]repository.FileMetadata
+	}{arg1, arg2, arg3})
+	stub := fake.ListFilesByUserIDStub
+	fakeReturns := fake.listFilesByUserIDReturns
+	fake.recordInvocation("ListFilesByUserID", []interface{}{arg1, arg2, arg3})
+	fake.listFilesByUserIDMutex.Unlock()
+	if stub != nil {
+		return stub(arg1, arg2, arg3)
+	}
+	if specificReturn {
+		return ret.result1
+	}
+	return fakeReturns.result1
+}
+
+func (fake *Repository) ListFilesByUserIDCallCount() int {
+	fake.listFilesByUserIDMutex.RLock()
+	defer fake.listFilesByUserIDMutex.RUnlock()
+	return len(fake.listFilesByUserIDArgsForCall)
+}
+
+func (fake *Repository) ListFilesByUserIDCalls(stub func(context.Context, string, *[]repository.FileMetadata) error) {
+	fake.listFilesByUserIDMutex.Lock()
+	defer fake.listFilesByUserIDMutex.Unlock()
+	fake.ListFilesByUserIDStub = stub
+}
+
+func (fake *Repository) ListFilesByUserIDArgsForCall(i int) (context.Context, string, *[]repository.FileMetadata) {
+	fake.listFilesByUserIDMutex.RLock()
+	defer fake.listFilesByUserIDMutex.RUnlock()
+	argsForCall := fake.listFilesByUserIDArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3
+}
+
+func (fake *Repository) ListFilesByUserIDReturns(result1 error) {
+	fake.listFilesByUserIDMutex.Lock()
+	defer fake.listFilesByUserIDMutex.Unlock()
+	fake.ListFilesByUserIDStub = nil
+	fake.listFilesByUserIDReturns = struct {
+		result1 error
+	}{result1}
+}
+
+func (fake *Repository) ListFilesByUserIDReturnsOnCall(i int, result1 error) {
+	fake.listFilesByUserIDMutex.Lock()
+	defer fake.listFilesByUserIDMutex.Unlock()
+	fake.ListFilesByUserIDStub = nil
+	if fake.listFilesByUserIDReturnsOnCall == nil {
+		fake.listFilesByUserIDReturnsOnCall = make(map[int]struct {
+			result1 error
+		})
+	}
+	fake.listFilesByUserIDReturnsOnCall[i] = struct {
 		result1 error
 	}{result1}
 }

@@ -110,6 +110,8 @@ func main() {
 	mux.HandleFunc(handler.UserRegister, usrHandler.HandleRegisterUser)
 	mux.HandleFunc(handler.UserUpdate, usrHandler.HandleUpdateUser)
 	mux.HandleFunc(handler.UserDelete, usrHandler.HandleDeleteUser)
+	mux.HandleFunc(handler.ListFiles, usrHandler.HandleListFiles)
+	mux.HandleFunc(handler.DeleteUserFiles, usrHandler.HandleDeleteUserFiles)
 
 	srv := server.NewHTTP(logger, hdlr, config.Port)
 	if err := run(srv); err != nil {

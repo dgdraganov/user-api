@@ -10,6 +10,19 @@ import (
 )
 
 type BlobStorage struct {
+	DeleteFileStub        func(context.Context, string, string) error
+	deleteFileMutex       sync.RWMutex
+	deleteFileArgsForCall []struct {
+		arg1 context.Context
+		arg2 string
+		arg3 string
+	}
+	deleteFileReturns struct {
+		result1 error
+	}
+	deleteFileReturnsOnCall map[int]struct {
+		result1 error
+	}
 	UploadFileStub        func(context.Context, string, string, io.Reader, int64) error
 	uploadFileMutex       sync.RWMutex
 	uploadFileArgsForCall []struct {
@@ -27,6 +40,69 @@ type BlobStorage struct {
 	}
 	invocations      map[string][][]interface{}
 	invocationsMutex sync.RWMutex
+}
+
+func (fake *BlobStorage) DeleteFile(arg1 context.Context, arg2 string, arg3 string) error {
+	fake.deleteFileMutex.Lock()
+	ret, specificReturn := fake.deleteFileReturnsOnCall[len(fake.deleteFileArgsForCall)]
+	fake.deleteFileArgsForCall = append(fake.deleteFileArgsForCall, struct {
+		arg1 context.Context
+		arg2 string
+		arg3 string
+	}{arg1, arg2, arg3})
+	stub := fake.DeleteFileStub
+	fakeReturns := fake.deleteFileReturns
+	fake.recordInvocation("DeleteFile", []interface{}{arg1, arg2, arg3})
+	fake.deleteFileMutex.Unlock()
+	if stub != nil {
+		return stub(arg1, arg2, arg3)
+	}
+	if specificReturn {
+		return ret.result1
+	}
+	return fakeReturns.result1
+}
+
+func (fake *BlobStorage) DeleteFileCallCount() int {
+	fake.deleteFileMutex.RLock()
+	defer fake.deleteFileMutex.RUnlock()
+	return len(fake.deleteFileArgsForCall)
+}
+
+func (fake *BlobStorage) DeleteFileCalls(stub func(context.Context, string, string) error) {
+	fake.deleteFileMutex.Lock()
+	defer fake.deleteFileMutex.Unlock()
+	fake.DeleteFileStub = stub
+}
+
+func (fake *BlobStorage) DeleteFileArgsForCall(i int) (context.Context, string, string) {
+	fake.deleteFileMutex.RLock()
+	defer fake.deleteFileMutex.RUnlock()
+	argsForCall := fake.deleteFileArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3
+}
+
+func (fake *BlobStorage) DeleteFileReturns(result1 error) {
+	fake.deleteFileMutex.Lock()
+	defer fake.deleteFileMutex.Unlock()
+	fake.DeleteFileStub = nil
+	fake.deleteFileReturns = struct {
+		result1 error
+	}{result1}
+}
+
+func (fake *BlobStorage) DeleteFileReturnsOnCall(i int, result1 error) {
+	fake.deleteFileMutex.Lock()
+	defer fake.deleteFileMutex.Unlock()
+	fake.DeleteFileStub = nil
+	if fake.deleteFileReturnsOnCall == nil {
+		fake.deleteFileReturnsOnCall = make(map[int]struct {
+			result1 error
+		})
+	}
+	fake.deleteFileReturnsOnCall[i] = struct {
+		result1 error
+	}{result1}
 }
 
 func (fake *BlobStorage) UploadFile(arg1 context.Context, arg2 string, arg3 string, arg4 io.Reader, arg5 int64) error {

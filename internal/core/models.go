@@ -27,6 +27,12 @@ type UserRecord struct {
 	Age       int    `json:"age"`
 }
 
+type FileRecord struct {
+	ID       string `json:"id"`
+	FileName string `json:"file_name"`
+	Bucket   string `json:"bucket"`
+}
+
 type RegisterMessage struct {
 	FirstName string `json:"first_name"`
 	LastName  string `json:"last_name"`

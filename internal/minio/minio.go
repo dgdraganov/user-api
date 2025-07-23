@@ -52,3 +52,12 @@ func (m *MinioClient) UploadFile(ctx context.Context, bucketName, objectName str
 
 	return nil
 }
+
+func (m *MinioClient) DeleteFile(ctx context.Context, bucketName, objectName string) error {
+	err := m.minioClient.RemoveObject(ctx, bucketName, objectName, minio.RemoveObjectOptions{})
+	if err != nil {
+		return fmt.Errorf("remove object: %w", err)
+	}
+
+	return nil
+}
