@@ -31,3 +31,8 @@ type JWTIssuer interface {
 type BlobStorage interface {
 	UploadFile(ctx context.Context, bucketName, objectName string, file io.Reader, fileSize int64) error
 }
+
+//counterfeiter:generate -o fake -fake-name MessageBroker . MessageBroker
+type MessageBroker interface {
+	Publish(ctx context.Context, exchange, routingKey string, body []byte) error
+}

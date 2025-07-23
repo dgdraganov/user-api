@@ -12,6 +12,7 @@ services:
     environment:
       PORT: 9205
       DB_CONNECTION_STRING: userapi:th15_15_s3cr3t@tcp(mysql:3306)/userdb?charset=utf8mb4&parseTime=True&loc=Local
+      RABBIT_CONNECTION_STRING: amqp://guest:th15_15_s3cr3t@rabbitmq:5672/
       JWT_SECRET: 74beb1f05bec22f86792af460b2f1301
       MINIO_ACCESS_KEY: guest
       MINIO_SECRET_KEY: th15_15_s3cr3t

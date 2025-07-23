@@ -22,16 +22,18 @@ var ErrUserNotFound error = errors.New("user not found")
 type UserService struct {
 	logs       *zap.SugaredLogger
 	repo       Repository
+	rabbit     MessageBroker
 	jwtIssuer  JWTIssuer
 	minio      BlobStorage
 	bucketName string
 }
 
 // NewUserService is a constructor function for the UserService type.
-func NewUserService(logger *zap.SugaredLogger, repo Repository, jwt JWTIssuer, minio BlobStorage, bucketName string) *UserService {
+func NewUserService(logger *zap.SugaredLogger, repo Repository, rabbit MessageBroker, jwt JWTIssuer, minio BlobStorage, bucketName string) *UserService {
 	return &UserService{
 		logs:       logger,
 		repo:       repo,
+		rabbit:     rabbit,
 		jwtIssuer:  jwt,
 		minio:      minio,
 		bucketName: bucketName,

@@ -21,6 +21,7 @@ var _ = Describe("UserService", func() {
 		fakeRepo   *fake.Repository
 		fakeJWT    *fake.JWTIssuer
 		fakeMinio  *fake.BlobStorage
+		fakeRabbit *fake.MessageBroker
 		fakeLogger *zap.SugaredLogger
 		ctx        context.Context
 
@@ -33,12 +34,13 @@ var _ = Describe("UserService", func() {
 		fakeRepo = new(fake.Repository)
 		fakeJWT = new(fake.JWTIssuer)
 		fakeMinio = new(fake.BlobStorage)
+		fakeRabbit = new(fake.MessageBroker)
 		bucketName := "test-bucket"
 		fakeLogger = zap.NewNop().Sugar()
 		ctx = context.Background()
 		fakeErr = errors.New("fake error")
 
-		usrSvc = core.NewUserService(fakeLogger, fakeRepo, fakeJWT, fakeMinio, bucketName)
+		usrSvc = core.NewUserService(fakeLogger, fakeRepo, fakeRabbit, fakeJWT, fakeMinio, bucketName)
 	})
 
 	Describe("Authenticate", func() {

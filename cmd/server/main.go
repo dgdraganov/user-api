@@ -16,6 +16,7 @@ import (
 	"github.com/dgdraganov/user-api/internal/http/payload"
 	"github.com/dgdraganov/user-api/internal/http/server"
 	"github.com/dgdraganov/user-api/internal/minio"
+	"github.com/dgdraganov/user-api/internal/rabbit"
 	"github.com/dgdraganov/user-api/internal/repository"
 	"github.com/dgdraganov/user-api/pkg/jwt"
 	"github.com/dgdraganov/user-api/pkg/log"
@@ -31,9 +32,17 @@ func main() {
 		os.Exit(1)
 	}
 
+	// mySQL connection
 	dbConn, err := db.NewMySqlDB(config.DBConnectionString)
 	if err != nil {
 		logger.Errorw("failed to connect to database", "error", err)
+		os.Exit(1)
+	}
+
+	//rabbitMQ connection
+	rbMQ, err := rabbit.NewRabbit(config.RabbitConnectionString)
+	if err != nil {
+		logger.Errorw("failed to connect to rabbitMQ", "error", err)
 		os.Exit(1)
 	}
 
@@ -65,6 +74,7 @@ func main() {
 		os.Exit(1)
 	}
 
+	// ensure bucket exists
 	err = minioClient.CreateBucket(context.Background(), config.MinioBucketName)
 	if err != nil {
 		logger.Errorw("failed to create minio bucket", "error", err)

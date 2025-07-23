@@ -9,23 +9,25 @@ import (
 var errEnvVarNotFound error = errors.New("environment variable not found")
 
 const (
-	DB_CONNECTION_STRING_ENV = "DB_CONNECTION_STRING"
-	JWT_SECRET_ENV           = "JWT_SECRET"
-	PORT_ENV                 = "PORT"
-	MINIO_ENDPOINT_ENV       = "MINIO_ENDPOINT"
-	MINIO_ACCESS_KEY_ENV     = "MINIO_ACCESS_KEY"
-	MINIO_SECRET_KEY_ENV     = "MINIO_SECRET_KEY"
-	MINIO_BUCKET_ENV         = "MINIO_BUCKET"
+	DB_CONNECTION_STRING_ENV     = "DB_CONNECTION_STRING"
+	JWT_SECRET_ENV               = "JWT_SECRET"
+	PORT_ENV                     = "PORT"
+	MINIO_ENDPOINT_ENV           = "MINIO_ENDPOINT"
+	MINIO_ACCESS_KEY_ENV         = "MINIO_ACCESS_KEY"
+	MINIO_SECRET_KEY_ENV         = "MINIO_SECRET_KEY"
+	MINIO_BUCKET_ENV             = "MINIO_BUCKET"
+	RABBIT_CONNECTION_STRING_ENV = "RABBIT_CONNECTION_STRING"
 )
 
 type AppConfig struct {
-	Port               string
-	DBConnectionString string
-	JWTSecret          string
-	MinioEndpoint      string
-	MinioAccessKey     string
-	MinioSecretKey     string
-	MinioBucketName    string
+	Port                   string
+	DBConnectionString     string
+	JWTSecret              string
+	MinioEndpoint          string
+	MinioAccessKey         string
+	MinioSecretKey         string
+	MinioBucketName        string
+	RabbitConnectionString string
 }
 
 func NewAppConfig() (AppConfig, error) {
@@ -65,13 +67,19 @@ func NewAppConfig() (AppConfig, error) {
 		return AppConfig{}, fmt.Errorf("%w: %s", errEnvVarNotFound, MINIO_BUCKET_ENV)
 	}
 
+	rabbitConnStr, ok := os.LookupEnv(RABBIT_CONNECTION_STRING_ENV)
+	if !ok {
+		return AppConfig{}, fmt.Errorf("%w: %s", errEnvVarNotFound, RABBIT_CONNECTION_STRING_ENV)
+	}
+
 	return AppConfig{
-		DBConnectionString: connStr,
-		JWTSecret:          jwtSecret,
-		Port:               port,
-		MinioEndpoint:      minioEndpoint,
-		MinioAccessKey:     minioAccessKey,
-		MinioSecretKey:     minioSecretKey,
-		MinioBucketName:    minioBucket,
+		DBConnectionString:     connStr,
+		JWTSecret:              jwtSecret,
+		Port:                   port,
+		MinioEndpoint:          minioEndpoint,
+		MinioAccessKey:         minioAccessKey,
+		MinioSecretKey:         minioSecretKey,
+		MinioBucketName:        minioBucket,
+		RabbitConnectionString: rabbitConnStr,
 	}, nil
 }
