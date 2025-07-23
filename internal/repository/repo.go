@@ -109,3 +109,11 @@ func (r *UserRepository) CreateUser(ctx context.Context, user User) error {
 	}
 	return nil
 }
+
+func (r *UserRepository) UpdateUser(ctx context.Context, user User) error {
+	err := r.db.UpdateTable(ctx, user)
+	if err != nil {
+		return fmt.Errorf("update user: %w", err)
+	}
+	return nil
+}

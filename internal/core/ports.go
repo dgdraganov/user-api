@@ -19,6 +19,7 @@ type Repository interface {
 	SaveFileMetadata(ctx context.Context, fileMetadata repository.FileMetadata) error
 	GetUserByID(ctx context.Context, id string, user *repository.User) error
 	CreateUser(ctx context.Context, user repository.User) error
+	UpdateUser(ctx context.Context, user repository.User) error
 }
 
 //counterfeiter:generate -o fake -fake-name JWTIssuer . JWTIssuer

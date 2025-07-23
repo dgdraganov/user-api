@@ -18,7 +18,8 @@ var (
 	ListUsers    = "GET /api/users"
 	GetUser      = "GET /api/users/{guid}"
 	UploadFile   = "POST /api/users/upload"
-	Register     = "POST /api/users/register"
+	UserRegister = "POST /api/users"
+	UserUpdate   = "PUT /api/users"
 )
 
 type UserHandler struct {
@@ -86,7 +87,7 @@ func (h *UserHandler) HandleAuthenticate(w http.ResponseWriter, r *http.Request)
 	respond(w, resp, http.StatusOK)
 }
 
-func (h *UserHandler) HandleRegister(w http.ResponseWriter, r *http.Request) {
+func (h *UserHandler) HandleUserRegister(w http.ResponseWriter, r *http.Request) {
 	requestId := ""
 	if reqId, ok := r.Context().Value(middleware.RequestIDKey).(string); ok {
 		requestId = reqId
@@ -133,6 +134,64 @@ func (h *UserHandler) HandleRegister(w http.ResponseWriter, r *http.Request) {
 	respond(w, Response{
 		Message: "User registered successfully!",
 	}, http.StatusCreated)
+}
+
+func (h *UserHandler) HandleUserUpdate(w http.ResponseWriter, r *http.Request) {
+	requestId := ""
+	if reqId, ok := r.Context().Value(middleware.RequestIDKey).(string); ok {
+		requestId = reqId
+	}
+
+	claims, err := h.authenticate(r)
+	if err != nil {
+		respond(w, Response{
+			Message: "could not update user",
+			Error:   err.Error(),
+		}, http.StatusUnauthorized)
+		return
+	}
+
+	userID, ok := claims["sub"].(string)
+	if !ok {
+		respond(w, Response{
+			Message: couldNotUpdateUser,
+			Error:   "Invalid user ID in token",
+		}, http.StatusInternalServerError)
+		h.logs.Errorw("invalid user ID in token", "handler", UploadFile, "request_id", requestId)
+		return
+	}
+
+	var payload payload.UpdateUserRequest
+	err = h.requestValidator.DecodeAndValidateJSONPayload(r, &payload)
+	if err != nil {
+		respond(w, Response{
+			Message: "could not update user",
+			Error:   badRequestErr,
+		}, http.StatusBadRequest)
+		h.logs.Errorw("failed to decode and validate request payload",
+			"error", err,
+			"handler", UserUpdate,
+			"request_id", requestId)
+		return
+	}
+
+	err = h.coreSvc.UpdateUser(r.Context(), payload.ToMessage(), userID)
+	if err != nil {
+		respond(w, Response{
+			Message: couldNotUpdateUser,
+			Error:   oopsErr,
+		}, http.StatusInternalServerError)
+		h.logs.Errorw("failed to update user",
+			"error", err,
+			"handler", UserUpdate,
+			"request_id", requestId)
+		return
+	}
+
+	resp := map[string]string{
+		"message": "User updated successfully!",
+	}
+	respond(w, resp, http.StatusOK)
 }
 
 func (h *UserHandler) HandleListUsers(w http.ResponseWriter, r *http.Request) {
@@ -222,21 +281,8 @@ func (h *UserHandler) HandleGetUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	userBytes, err := json.Marshal(user)
-	if err != nil {
-		respond(w, Response{
-			Message: couldNotGetUser,
-			Error:   oopsErr,
-		}, http.StatusInternalServerError)
-		h.logs.Errorw("failed to marshal user data",
-			"error", err,
-			"handler", GetUser,
-			"request_id", requestId)
-		return
-	}
-
-	resp := map[string]string{
-		"user": string(userBytes),
+	resp := map[string]interface{}{
+		"user": user,
 	}
 	respond(w, resp, http.StatusOK)
 }

@@ -81,6 +81,19 @@ type CoreService struct {
 	saveFileMetadataReturnsOnCall map[int]struct {
 		result1 error
 	}
+	UpdateUserStub        func(context.Context, core.UpdateUserMessage, string) error
+	updateUserMutex       sync.RWMutex
+	updateUserArgsForCall []struct {
+		arg1 context.Context
+		arg2 core.UpdateUserMessage
+		arg3 string
+	}
+	updateUserReturns struct {
+		result1 error
+	}
+	updateUserReturnsOnCall map[int]struct {
+		result1 error
+	}
 	UploadUserFileStub        func(context.Context, string, io.Reader, int64) error
 	uploadUserFileMutex       sync.RWMutex
 	uploadUserFileArgsForCall []struct {
@@ -431,6 +444,69 @@ func (fake *CoreService) SaveFileMetadataReturnsOnCall(i int, result1 error) {
 		})
 	}
 	fake.saveFileMetadataReturnsOnCall[i] = struct {
+		result1 error
+	}{result1}
+}
+
+func (fake *CoreService) UpdateUser(arg1 context.Context, arg2 core.UpdateUserMessage, arg3 string) error {
+	fake.updateUserMutex.Lock()
+	ret, specificReturn := fake.updateUserReturnsOnCall[len(fake.updateUserArgsForCall)]
+	fake.updateUserArgsForCall = append(fake.updateUserArgsForCall, struct {
+		arg1 context.Context
+		arg2 core.UpdateUserMessage
+		arg3 string
+	}{arg1, arg2, arg3})
+	stub := fake.UpdateUserStub
+	fakeReturns := fake.updateUserReturns
+	fake.recordInvocation("UpdateUser", []interface{}{arg1, arg2, arg3})
+	fake.updateUserMutex.Unlock()
+	if stub != nil {
+		return stub(arg1, arg2, arg3)
+	}
+	if specificReturn {
+		return ret.result1
+	}
+	return fakeReturns.result1
+}
+
+func (fake *CoreService) UpdateUserCallCount() int {
+	fake.updateUserMutex.RLock()
+	defer fake.updateUserMutex.RUnlock()
+	return len(fake.updateUserArgsForCall)
+}
+
+func (fake *CoreService) UpdateUserCalls(stub func(context.Context, core.UpdateUserMessage, string) error) {
+	fake.updateUserMutex.Lock()
+	defer fake.updateUserMutex.Unlock()
+	fake.UpdateUserStub = stub
+}
+
+func (fake *CoreService) UpdateUserArgsForCall(i int) (context.Context, core.UpdateUserMessage, string) {
+	fake.updateUserMutex.RLock()
+	defer fake.updateUserMutex.RUnlock()
+	argsForCall := fake.updateUserArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3
+}
+
+func (fake *CoreService) UpdateUserReturns(result1 error) {
+	fake.updateUserMutex.Lock()
+	defer fake.updateUserMutex.Unlock()
+	fake.UpdateUserStub = nil
+	fake.updateUserReturns = struct {
+		result1 error
+	}{result1}
+}
+
+func (fake *CoreService) UpdateUserReturnsOnCall(i int, result1 error) {
+	fake.updateUserMutex.Lock()
+	defer fake.updateUserMutex.Unlock()
+	fake.UpdateUserStub = nil
+	if fake.updateUserReturnsOnCall == nil {
+		fake.updateUserReturnsOnCall = make(map[int]struct {
+			result1 error
+		})
+	}
+	fake.updateUserReturnsOnCall[i] = struct {
 		result1 error
 	}{result1}
 }

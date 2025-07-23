@@ -11,7 +11,7 @@ EMAIL="$3"
 AGE="$4"
 PASSWORD="$5"
 
-curl -X POST "http://localhost:9205/api/users/register" \
+curl -X POST "http://localhost:9205/api/users" \
     -H "Content-Type: application/json" \
     -d '{
         "first_name": "'"$FIRST_NAME"'",

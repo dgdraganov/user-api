@@ -49,6 +49,13 @@ func (u *MySQL) InsertToTable(ctx context.Context, records any) error {
 	return nil
 }
 
+func (u *MySQL) UpdateTable(ctx context.Context, records any) error {
+	if err := u.DB.Save(records).Error; err != nil {
+		return fmt.Errorf("update table: %w", err)
+	}
+	return nil
+}
+
 // GetOneBy retrieves a single record from the specified table where the given column matches the provided value.
 func (u *MySQL) GetOneBy(ctx context.Context, column string, value any, entity any) error {
 	query := fmt.Sprintf("%s = ?", column)
@@ -111,6 +118,7 @@ func (u *MySQL) SeedTable(ctx context.Context, records any) error {
 	return nil
 }
 
+// ListByPage retrieves a paginated list of records from the specified table.
 func (u *MySQL) ListByPage(ctx context.Context, page, pageSize int, entity any) error {
 	if page < 1 || pageSize < 1 {
 		return fmt.Errorf("page and pageSize must be greater than 0: (page=%d, pageSize=%d)", page, pageSize)

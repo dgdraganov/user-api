@@ -14,7 +14,7 @@ type AuthRequest struct {
 
 func (a AuthRequest) Validate() error {
 	err := validation.ValidateStruct(&a,
-		validation.Field(&a.Email, validation.Required),
+		validation.Field(&a.Email, validation.Required, validation.Match(regexEmail)),
 		validation.Field(&a.Password, validation.Required),
 	)
 	if err != nil {

@@ -27,4 +27,5 @@ type CoreService interface {
 	SaveFileMetadata(ctx context.Context, fileName, bucket, userID string) error
 	GetUser(ctx context.Context, id string) (core.UserRecord, error)
 	RegisterUser(ctx context.Context, msg core.RegisterMessage) error
+	UpdateUser(ctx context.Context, msg core.UpdateUserMessage, userID string) error
 }

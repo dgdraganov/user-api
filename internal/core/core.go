@@ -15,9 +15,6 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-var ErrIncorrectPassword error = errors.New("incorrect password")
-var ErrUserNotFound error = errors.New("user not found")
-
 // UserService is a struct that provides methods to interact with the Ethereum node and the database.
 type UserService struct {
 	logs       *zap.SugaredLogger
@@ -153,6 +150,24 @@ func (f *UserService) RegisterUser(ctx context.Context, msg RegisterMessage) err
 	err = f.repo.CreateUser(ctx, user)
 	if err != nil {
 		return fmt.Errorf("create user in db: %w", err)
+	}
+	return nil
+}
+
+func (f *UserService) UpdateUser(ctx context.Context, msg UpdateUserMessage, userID string) error {
+	var user repository.User
+	err := f.repo.GetUserByID(ctx, userID, &user)
+	if err != nil {
+		if errors.Is(err, repository.ErrUserNotFound) {
+			return ErrUserNotFound
+		}
+		return fmt.Errorf("get user by id: %w", err)
+	}
+
+	userUpdate := msg.ToUser(userID)
+	err = f.repo.UpdateUser(ctx, userUpdate)
+	if err != nil {
+		return fmt.Errorf("update user: %w", err)
 	}
 	return nil
 }
