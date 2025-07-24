@@ -5,13 +5,15 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
-	"strings"
+	"net/url"
 
 	"github.com/dgdraganov/user-api/internal/core"
 	"github.com/dgdraganov/user-api/internal/http/handler"
 	"github.com/dgdraganov/user-api/internal/http/handler/fake"
+	"github.com/dgdraganov/user-api/internal/http/payload"
 	"github.com/golang-jwt/jwt"
 	"github.com/google/uuid"
 
@@ -30,10 +32,12 @@ var _ = Describe("UserHandler", func() {
 		req           *http.Request
 		testToken     string
 		fakeErr       error
+		userID        string
 	)
 
 	BeforeEach(func() {
 		testToken = "test-token"
+		userID = uuid.New().String()
 		fakeErr = errors.New("fake error")
 		logger = zap.NewNop().Sugar()
 		fakeService = new(fake.CoreService)
@@ -44,8 +48,12 @@ var _ = Describe("UserHandler", func() {
 
 	Describe("HandleAuthenticate", func() {
 		BeforeEach(func() {
-			body := strings.NewReader(`{"email":"test@example.com","password":"pass123"}`)
-			req = httptest.NewRequest(http.MethodPost, "/api/auth", body)
+			authReq := map[string]any{
+				"password": "pass123",
+				"email":    "test@example.com",
+			}
+			jsonBody, _ := json.Marshal(authReq)
+			req = httptest.NewRequest(http.MethodPost, "/api/auth", bytes.NewBuffer(jsonBody))
 			req.Header.Set("Content-Type", "application/json")
 
 			fakeValidator.DecodeAndValidateJSONPayloadReturns(nil)
@@ -88,8 +96,15 @@ var _ = Describe("UserHandler", func() {
 
 	Describe("HandleRegisterUser", func() {
 		BeforeEach(func() {
-			body := bytes.NewBufferString(`{"email":"john@example.com","password":"pass123","first_name":"John","last_name":"Doe","age":25}`)
-			req = httptest.NewRequest(http.MethodPost, "/api/users", body)
+			regReq := map[string]any{
+				"email":      "john@example.com",
+				"password":   "pass123",
+				"first_name": "John",
+				"last_name":  "Doe",
+				"age":        25,
+			}
+			jsonBody, _ := json.Marshal(regReq)
+			req = httptest.NewRequest(http.MethodPost, "/api/users", bytes.NewBuffer(jsonBody))
 			req.Header.Set("Content-Type", "application/json")
 
 			fakeValidator.DecodeAndValidateJSONPayloadStub = func(r *http.Request, obj any) error {
@@ -136,16 +151,11 @@ var _ = Describe("UserHandler", func() {
 	})
 
 	Describe("HandleUpdateUser", func() {
-		var (
-			// updateReq payload.UpdateUserRequest
-			userID = uuid.New().String()
-		)
-
 		BeforeEach(func() {
 			updateReq := map[string]any{
 				"first_name": "Test",
 				"last_name":  "Test",
-				"email":      "updated@example.com",
+				"email":      "test@example.com",
 				"age":        30,
 			}
 
@@ -166,32 +176,41 @@ var _ = Describe("UserHandler", func() {
 		JustBeforeEach(func() {
 			uHandler.HandleUpdateUser(recorder, req)
 		})
-
-		It("updates user successfully", func() {
-			Expect(recorder.Code).To(Equal(http.StatusOK))
-			Expect(fakeService.UpdateUserCallCount()).To(Equal(1))
-			_, updateMessage, userID := fakeService.UpdateUserArgsForCall(0)
-			Expect(userID).To(Equal(userID))
-			Expect(updateMessage.FirstName).To(Equal("Test"))
-			Expect(updateMessage.LastName).To(Equal("Test"))
-			Expect(updateMessage.Email).To(Equal("updated@example.com"))
-			Expect(updateMessage.Age).To(Equal(30))
-			Expect(fakeService.PublishEventCallCount()).To(Equal(1))
-		})
-
-		When("user is not authorized", func() {
+		When("user is not admin", func() {
 			BeforeEach(func() {
-				fakeService.ValidateTokenReturns(jwt.MapClaims{"sub": "another-user-id", "role": "user"}, nil)
+				fakeService.ValidateTokenReturns(jwt.MapClaims{"sub": "random-user-id", "role": "user"}, nil)
 			})
 
-			It("should return 403 Forbidden", func() {
+			It("fails to update other user's profile", func() {
 				Expect(recorder.Code).To(Equal(http.StatusForbidden))
 				Expect(fakeService.UpdateUserCallCount()).To(Equal(0))
 				Expect(fakeService.PublishEventCallCount()).To(Equal(0))
 			})
 		})
 
-		When("validation fails", func() {
+		When("user is admin", func() {
+			var adminUserID string
+
+			BeforeEach(func() {
+				adminUserID = uuid.New().String()
+				fakeService.ValidateTokenReturns(jwt.MapClaims{"sub": adminUserID, "role": "admin"}, nil)
+			})
+
+			It("updates other user's profile successfully", func() {
+				Expect(recorder.Code).To(Equal(http.StatusOK))
+				Expect(fakeService.UpdateUserCallCount()).To(Equal(1))
+				_, updateMessage, userGUID := fakeService.UpdateUserArgsForCall(0)
+				Expect(userGUID).To(Equal(userID))
+				Expect(userID).ToNot(Equal(adminUserID))
+				Expect(updateMessage.FirstName).To(Equal("Test"))
+				Expect(updateMessage.LastName).To(Equal("Test"))
+				Expect(updateMessage.Email).To(Equal("test@example.com"))
+				Expect(updateMessage.Age).To(Equal(30))
+				Expect(fakeService.PublishEventCallCount()).To(Equal(1))
+			})
+		})
+
+		When("payload has invalid fields", func() {
 			BeforeEach(func() {
 				fakeValidator.DecodeAndValidateJSONPayloadReturns(fakeErr)
 			})
@@ -200,6 +219,7 @@ var _ = Describe("UserHandler", func() {
 				Expect(recorder.Code).To(Equal(http.StatusBadRequest))
 				Expect(fakeService.UpdateUserCallCount()).To(Equal(0))
 				Expect(fakeService.PublishEventCallCount()).To(Equal(0))
+				Expect(fakeService.ValidateTokenCallCount()).To(Equal(1))
 			})
 		})
 
@@ -212,6 +232,95 @@ var _ = Describe("UserHandler", func() {
 				Expect(recorder.Code).To(Equal(http.StatusInternalServerError))
 				Expect(fakeService.UpdateUserCallCount()).To(Equal(1))
 				Expect(fakeService.PublishEventCallCount()).To(Equal(0))
+				Expect(fakeService.ValidateTokenCallCount()).To(Equal(1))
+			})
+		})
+
+		When("token validation fails", func() {
+			BeforeEach(func() {
+				fakeService.ValidateTokenReturns(nil, fakeErr)
+			})
+
+			It("should return 401 Unauthorized", func() {
+				Expect(recorder.Code).To(Equal(http.StatusUnauthorized))
+				Expect(fakeService.UpdateUserCallCount()).To(Equal(0))
+				Expect(fakeService.PublishEventCallCount()).To(Equal(0))
+				Expect(fakeService.ValidateTokenCallCount()).To(Equal(1))
+				_, token := fakeService.ValidateTokenArgsForCall(0)
+				Expect(token).To(Equal(testToken))
+			})
+		})
+	})
+
+	Describe("HandleListUsers", func() {
+		var (
+			queryParams = url.Values{}
+			pageVal     int
+			pageSizeVal int
+		)
+
+		BeforeEach(func() {
+			pageVal = 1
+			pageSizeVal = 10
+			queryParams.Set("page", fmt.Sprintf("%d", pageVal))
+			queryParams.Set("page_size", fmt.Sprintf("%d", pageSizeVal))
+			req = httptest.NewRequest(http.MethodGet, "/api/users?"+queryParams.Encode(), nil)
+			req.Header.Set("AUTH_TOKEN", testToken)
+
+			fakeValidator.DecodeAndValidateQueryParamsStub = func(r *http.Request, u payload.URLDecoder) error {
+				return u.DecodeFromURLValues(r.URL.Query())
+			}
+
+			fakeService.ValidateTokenReturns(jwt.MapClaims{"sub": userID, "role": "user"}, nil)
+			fakeService.ListUsersReturns([]core.UserRecord{
+				{
+					ID:        uuid.New().String(),
+					Email:     "alice@example.com",
+					FirstName: "Alice",
+					LastName:  "Cooper",
+					Age:       30,
+				},
+				{
+					ID:        uuid.New().String(),
+					Email:     "bob@example.com",
+					FirstName: "Bob",
+					LastName:  "Marley",
+					Age:       25,
+				},
+			}, nil)
+		})
+
+		JustBeforeEach(func() {
+			uHandler.HandleListUsers(recorder, req)
+		})
+
+		It("should return a list of users", func() {
+			Expect(recorder.Code).To(Equal(http.StatusOK))
+			Expect(fakeService.ListUsersCallCount()).To(Equal(1))
+			_, page, pageSize := fakeService.ListUsersArgsForCall(0)
+			Expect(page).To(Equal(pageVal))
+			Expect(pageSize).To(Equal(pageSizeVal))
+		})
+
+		When("token validation fails", func() {
+			BeforeEach(func() {
+				fakeService.ValidateTokenReturns(nil, fakeErr)
+			})
+
+			It("should return 401 Unauthorized", func() {
+				Expect(recorder.Code).To(Equal(http.StatusUnauthorized))
+				Expect(fakeService.ListUsersCallCount()).To(Equal(0))
+			})
+		})
+
+		When("listing users fails", func() {
+			BeforeEach(func() {
+				fakeService.ListUsersReturns(nil, fakeErr)
+			})
+
+			It("should return 500 Internal Server Error", func() {
+				Expect(recorder.Code).To(Equal(http.StatusInternalServerError))
+				Expect(fakeService.ListUsersCallCount()).To(Equal(1))
 			})
 		})
 	})

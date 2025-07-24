@@ -59,7 +59,7 @@ curl_requests
 
 ```
 
-Listing users does not require authentication. You can list existing users with: 
+You can list existing users by pages. You simply pass the page number and the count of users per page:
 
 ```bash
     # page 1 with 33 users per page
