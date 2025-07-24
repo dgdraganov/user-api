@@ -324,4 +324,42 @@ var _ = Describe("UserHandler", func() {
 			})
 		})
 	})
+
+	Describe("HandleGetUser", func() {
+
+		var regularUserID string
+
+		BeforeEach(func() {
+			regularUserID = uuid.New().String()
+			req = httptest.NewRequest(http.MethodGet, "/api/users/"+userID, nil)
+			req.Header.Set("AUTH_TOKEN", testToken)
+
+			fakeService.ValidateTokenReturns(jwt.MapClaims{"sub": regularUserID, "role": "user"}, nil)
+			fakeService.GetUserReturns(core.UserRecord{
+				ID:        userID,
+				Email:     "john@example.com",
+				FirstName: "John",
+				LastName:  "Doe",
+				Age:       25,
+				Role:      "admin",
+			}, nil)
+		})
+		JustBeforeEach(func() {
+			uHandler.HandleGetUser(recorder, req)
+		})
+		It("should return user details", func() {
+			Expect(recorder.Code).To(Equal(http.StatusOK))
+			var userData map[string]any
+			err := json.NewDecoder(recorder.Body).Decode(&userData)
+			Expect(err).ToNot(HaveOccurred())
+			user, ok := userData["user"].(map[string]any)
+			Expect(ok).To(BeTrue())
+			Expect(user["id"]).To(Equal(userID))
+			Expect(user["email"]).To(Equal("john@example.com"))
+			Expect(user["first_name"]).To(Equal("John"))
+			Expect(user["last_name"]).To(Equal("Doe"))
+			age := fmt.Sprintf("%v", user["age"])
+			Expect(age).To(Equal("25"))
+		})
+	})
 })
