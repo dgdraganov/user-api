@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 
 	"github.com/dgdraganov/user-api/internal/config"
 	"github.com/dgdraganov/user-api/internal/core"
@@ -122,21 +123,19 @@ func main() {
 
 func run(server *server.HTTPServer) error {
 	// expect a signal to gracefully shutdown the server
-	sig := make(chan os.Signal, 1)
-	signal.Notify(sig, syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT)
+	done := make(chan os.Signal, 1)
+	signal.Notify(done, syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT)
 
-	errChan := server.Run()
+	go server.Run(done)
 
-	var err error
-	select {
-	case <-sig:
-	case err = <-errChan:
+	<-done
+
+	ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
+	defer cancel()
+	err := server.Shutdown(ctx)
+	if err != nil {
+		return fmt.Errorf("server shutdown: %w", err)
 	}
 
-	sdErr := server.Shutdown()
-	if err == http.ErrServerClosed && sdErr != nil {
-		return fmt.Errorf("server shutdown: %w", sdErr)
-	}
-
-	return err
+	return nil
 }

@@ -2,8 +2,10 @@ package server
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"net/http"
+	"os"
 
 	"go.uber.org/zap"
 )
@@ -24,26 +26,18 @@ func NewHTTP(logger *zap.SugaredLogger, mux http.Handler, port string) *HTTPServ
 	}
 }
 
-func (s *HTTPServer) Run() <-chan error {
-	s.logs.Infow(
-		"service starting",
-		"app_port", s.server.Addr,
-	)
-
-	errChan := make(chan error)
-	go func() {
-		if err := s.server.ListenAndServe(); err != nil {
-			s.logs.Errorw("server shut down", "error", err)
-			errChan <- err
-		}
-	}()
-	return errChan
+func (s *HTTPServer) Run(done chan<- os.Signal) {
+	s.logs.Info("server starting...")
+	if err := s.server.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
+		s.logs.Errorw("server shut down unexpectedly", "error", err)
+	}
+	done <- nil
 }
 
-func (s *HTTPServer) Shutdown() error {
+func (s *HTTPServer) Shutdown(ctx context.Context) error {
 	s.logs.Info("shutting down server...")
 
-	if err := s.server.Shutdown(context.Background()); err != nil {
+	if err := s.server.Shutdown(ctx); err != nil {
 		s.logs.Error(
 			"server shutdown failed",
 			"error", err,
