@@ -5,8 +5,8 @@ import (
 	"context"
 	"sync"
 
-	"github.com/dgdraganov/user-api/internal/core"
 	"github.com/dgdraganov/user-api/internal/repository"
+	"github.com/dgdraganov/user-api/internal/service"
 )
 
 type Repository struct {
@@ -712,4 +712,4 @@ func (fake *Repository) recordInvocation(key string, args []interface{}) {
 	fake.invocations[key] = append(fake.invocations[key], args)
 }
 
-var _ core.Repository = new(Repository)
+var _ service.Repository = new(Repository)

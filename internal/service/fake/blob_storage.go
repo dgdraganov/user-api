@@ -6,7 +6,7 @@ import (
 	"io"
 	"sync"
 
-	"github.com/dgdraganov/user-api/internal/core"
+	"github.com/dgdraganov/user-api/internal/service"
 )
 
 type BlobStorage struct {
@@ -192,4 +192,4 @@ func (fake *BlobStorage) recordInvocation(key string, args []interface{}) {
 	fake.invocations[key] = append(fake.invocations[key], args)
 }
 
-var _ core.BlobStorage = new(BlobStorage)
+var _ service.BlobStorage = new(BlobStorage)

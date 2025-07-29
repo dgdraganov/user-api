@@ -3,7 +3,7 @@ package payload
 import (
 	"fmt"
 
-	"github.com/dgdraganov/user-api/internal/core"
+	"github.com/dgdraganov/user-api/internal/service"
 	"github.com/jellydator/validation"
 )
 
@@ -24,8 +24,8 @@ func (a AuthRequest) Validate() error {
 	return nil
 }
 
-func (a *AuthRequest) ToMessage() core.AuthMessage {
-	return core.AuthMessage{
+func (a *AuthRequest) ToMessage() service.AuthMessage {
+	return service.AuthMessage{
 		Email:    a.Email,
 		Password: a.Password,
 	}

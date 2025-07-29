@@ -1,4 +1,4 @@
-package core
+package service
 
 import (
 	"errors"
@@ -7,7 +7,6 @@ import (
 )
 
 var (
-	// error user already exists
 	ErrUserAlreadyExists       = errors.New("user already exists")
 	ErrUserNotFound            = errors.New("user not found")
 	ErrIncorrectPassword error = errors.New("incorrect password")

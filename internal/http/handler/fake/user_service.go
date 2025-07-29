@@ -6,17 +6,17 @@ import (
 	"io"
 	"sync"
 
-	"github.com/dgdraganov/user-api/internal/core"
 	"github.com/dgdraganov/user-api/internal/http/handler"
+	"github.com/dgdraganov/user-api/internal/service"
 	"github.com/golang-jwt/jwt"
 )
 
-type CoreService struct {
-	AuthenticateStub        func(context.Context, core.AuthMessage) (string, error)
+type UserService struct {
+	AuthenticateStub        func(context.Context, service.AuthMessage) (string, error)
 	authenticateMutex       sync.RWMutex
 	authenticateArgsForCall []struct {
 		arg1 context.Context
-		arg2 core.AuthMessage
+		arg2 service.AuthMessage
 	}
 	authenticateReturns struct {
 		result1 string
@@ -50,35 +50,35 @@ type CoreService struct {
 	deleteUserFilesReturnsOnCall map[int]struct {
 		result1 error
 	}
-	GetUserStub        func(context.Context, string) (core.UserRecord, error)
+	GetUserStub        func(context.Context, string) (service.UserRecord, error)
 	getUserMutex       sync.RWMutex
 	getUserArgsForCall []struct {
 		arg1 context.Context
 		arg2 string
 	}
 	getUserReturns struct {
-		result1 core.UserRecord
+		result1 service.UserRecord
 		result2 error
 	}
 	getUserReturnsOnCall map[int]struct {
-		result1 core.UserRecord
+		result1 service.UserRecord
 		result2 error
 	}
-	ListUserFilesStub        func(context.Context, string) ([]core.FileRecord, error)
+	ListUserFilesStub        func(context.Context, string) ([]service.FileRecord, error)
 	listUserFilesMutex       sync.RWMutex
 	listUserFilesArgsForCall []struct {
 		arg1 context.Context
 		arg2 string
 	}
 	listUserFilesReturns struct {
-		result1 []core.FileRecord
+		result1 []service.FileRecord
 		result2 error
 	}
 	listUserFilesReturnsOnCall map[int]struct {
-		result1 []core.FileRecord
+		result1 []service.FileRecord
 		result2 error
 	}
-	ListUsersStub        func(context.Context, int, int) ([]core.UserRecord, error)
+	ListUsersStub        func(context.Context, int, int) ([]service.UserRecord, error)
 	listUsersMutex       sync.RWMutex
 	listUsersArgsForCall []struct {
 		arg1 context.Context
@@ -86,11 +86,11 @@ type CoreService struct {
 		arg3 int
 	}
 	listUsersReturns struct {
-		result1 []core.UserRecord
+		result1 []service.UserRecord
 		result2 error
 	}
 	listUsersReturnsOnCall map[int]struct {
-		result1 []core.UserRecord
+		result1 []service.UserRecord
 		result2 error
 	}
 	PublishEventStub        func(context.Context, string, interface{}) error
@@ -106,11 +106,11 @@ type CoreService struct {
 	publishEventReturnsOnCall map[int]struct {
 		result1 error
 	}
-	RegisterUserStub        func(context.Context, core.RegisterMessage) error
+	RegisterUserStub        func(context.Context, service.RegisterMessage) error
 	registerUserMutex       sync.RWMutex
 	registerUserArgsForCall []struct {
 		arg1 context.Context
-		arg2 core.RegisterMessage
+		arg2 service.RegisterMessage
 	}
 	registerUserReturns struct {
 		result1 error
@@ -132,11 +132,11 @@ type CoreService struct {
 	saveFileMetadataReturnsOnCall map[int]struct {
 		result1 error
 	}
-	UpdateUserStub        func(context.Context, core.UpdateUserMessage, string) error
+	UpdateUserStub        func(context.Context, service.UpdateUserMessage, string) error
 	updateUserMutex       sync.RWMutex
 	updateUserArgsForCall []struct {
 		arg1 context.Context
-		arg2 core.UpdateUserMessage
+		arg2 service.UpdateUserMessage
 		arg3 string
 	}
 	updateUserReturns struct {
@@ -177,12 +177,12 @@ type CoreService struct {
 	invocationsMutex sync.RWMutex
 }
 
-func (fake *CoreService) Authenticate(arg1 context.Context, arg2 core.AuthMessage) (string, error) {
+func (fake *UserService) Authenticate(arg1 context.Context, arg2 service.AuthMessage) (string, error) {
 	fake.authenticateMutex.Lock()
 	ret, specificReturn := fake.authenticateReturnsOnCall[len(fake.authenticateArgsForCall)]
 	fake.authenticateArgsForCall = append(fake.authenticateArgsForCall, struct {
 		arg1 context.Context
-		arg2 core.AuthMessage
+		arg2 service.AuthMessage
 	}{arg1, arg2})
 	stub := fake.AuthenticateStub
 	fakeReturns := fake.authenticateReturns
@@ -197,26 +197,26 @@ func (fake *CoreService) Authenticate(arg1 context.Context, arg2 core.AuthMessag
 	return fakeReturns.result1, fakeReturns.result2
 }
 
-func (fake *CoreService) AuthenticateCallCount() int {
+func (fake *UserService) AuthenticateCallCount() int {
 	fake.authenticateMutex.RLock()
 	defer fake.authenticateMutex.RUnlock()
 	return len(fake.authenticateArgsForCall)
 }
 
-func (fake *CoreService) AuthenticateCalls(stub func(context.Context, core.AuthMessage) (string, error)) {
+func (fake *UserService) AuthenticateCalls(stub func(context.Context, service.AuthMessage) (string, error)) {
 	fake.authenticateMutex.Lock()
 	defer fake.authenticateMutex.Unlock()
 	fake.AuthenticateStub = stub
 }
 
-func (fake *CoreService) AuthenticateArgsForCall(i int) (context.Context, core.AuthMessage) {
+func (fake *UserService) AuthenticateArgsForCall(i int) (context.Context, service.AuthMessage) {
 	fake.authenticateMutex.RLock()
 	defer fake.authenticateMutex.RUnlock()
 	argsForCall := fake.authenticateArgsForCall[i]
 	return argsForCall.arg1, argsForCall.arg2
 }
 
-func (fake *CoreService) AuthenticateReturns(result1 string, result2 error) {
+func (fake *UserService) AuthenticateReturns(result1 string, result2 error) {
 	fake.authenticateMutex.Lock()
 	defer fake.authenticateMutex.Unlock()
 	fake.AuthenticateStub = nil
@@ -226,7 +226,7 @@ func (fake *CoreService) AuthenticateReturns(result1 string, result2 error) {
 	}{result1, result2}
 }
 
-func (fake *CoreService) AuthenticateReturnsOnCall(i int, result1 string, result2 error) {
+func (fake *UserService) AuthenticateReturnsOnCall(i int, result1 string, result2 error) {
 	fake.authenticateMutex.Lock()
 	defer fake.authenticateMutex.Unlock()
 	fake.AuthenticateStub = nil
@@ -242,7 +242,7 @@ func (fake *CoreService) AuthenticateReturnsOnCall(i int, result1 string, result
 	}{result1, result2}
 }
 
-func (fake *CoreService) DeleteUser(arg1 context.Context, arg2 string) error {
+func (fake *UserService) DeleteUser(arg1 context.Context, arg2 string) error {
 	fake.deleteUserMutex.Lock()
 	ret, specificReturn := fake.deleteUserReturnsOnCall[len(fake.deleteUserArgsForCall)]
 	fake.deleteUserArgsForCall = append(fake.deleteUserArgsForCall, struct {
@@ -262,26 +262,26 @@ func (fake *CoreService) DeleteUser(arg1 context.Context, arg2 string) error {
 	return fakeReturns.result1
 }
 
-func (fake *CoreService) DeleteUserCallCount() int {
+func (fake *UserService) DeleteUserCallCount() int {
 	fake.deleteUserMutex.RLock()
 	defer fake.deleteUserMutex.RUnlock()
 	return len(fake.deleteUserArgsForCall)
 }
 
-func (fake *CoreService) DeleteUserCalls(stub func(context.Context, string) error) {
+func (fake *UserService) DeleteUserCalls(stub func(context.Context, string) error) {
 	fake.deleteUserMutex.Lock()
 	defer fake.deleteUserMutex.Unlock()
 	fake.DeleteUserStub = stub
 }
 
-func (fake *CoreService) DeleteUserArgsForCall(i int) (context.Context, string) {
+func (fake *UserService) DeleteUserArgsForCall(i int) (context.Context, string) {
 	fake.deleteUserMutex.RLock()
 	defer fake.deleteUserMutex.RUnlock()
 	argsForCall := fake.deleteUserArgsForCall[i]
 	return argsForCall.arg1, argsForCall.arg2
 }
 
-func (fake *CoreService) DeleteUserReturns(result1 error) {
+func (fake *UserService) DeleteUserReturns(result1 error) {
 	fake.deleteUserMutex.Lock()
 	defer fake.deleteUserMutex.Unlock()
 	fake.DeleteUserStub = nil
@@ -290,7 +290,7 @@ func (fake *CoreService) DeleteUserReturns(result1 error) {
 	}{result1}
 }
 
-func (fake *CoreService) DeleteUserReturnsOnCall(i int, result1 error) {
+func (fake *UserService) DeleteUserReturnsOnCall(i int, result1 error) {
 	fake.deleteUserMutex.Lock()
 	defer fake.deleteUserMutex.Unlock()
 	fake.DeleteUserStub = nil
@@ -304,7 +304,7 @@ func (fake *CoreService) DeleteUserReturnsOnCall(i int, result1 error) {
 	}{result1}
 }
 
-func (fake *CoreService) DeleteUserFiles(arg1 context.Context, arg2 string) error {
+func (fake *UserService) DeleteUserFiles(arg1 context.Context, arg2 string) error {
 	fake.deleteUserFilesMutex.Lock()
 	ret, specificReturn := fake.deleteUserFilesReturnsOnCall[len(fake.deleteUserFilesArgsForCall)]
 	fake.deleteUserFilesArgsForCall = append(fake.deleteUserFilesArgsForCall, struct {
@@ -324,26 +324,26 @@ func (fake *CoreService) DeleteUserFiles(arg1 context.Context, arg2 string) erro
 	return fakeReturns.result1
 }
 
-func (fake *CoreService) DeleteUserFilesCallCount() int {
+func (fake *UserService) DeleteUserFilesCallCount() int {
 	fake.deleteUserFilesMutex.RLock()
 	defer fake.deleteUserFilesMutex.RUnlock()
 	return len(fake.deleteUserFilesArgsForCall)
 }
 
-func (fake *CoreService) DeleteUserFilesCalls(stub func(context.Context, string) error) {
+func (fake *UserService) DeleteUserFilesCalls(stub func(context.Context, string) error) {
 	fake.deleteUserFilesMutex.Lock()
 	defer fake.deleteUserFilesMutex.Unlock()
 	fake.DeleteUserFilesStub = stub
 }
 
-func (fake *CoreService) DeleteUserFilesArgsForCall(i int) (context.Context, string) {
+func (fake *UserService) DeleteUserFilesArgsForCall(i int) (context.Context, string) {
 	fake.deleteUserFilesMutex.RLock()
 	defer fake.deleteUserFilesMutex.RUnlock()
 	argsForCall := fake.deleteUserFilesArgsForCall[i]
 	return argsForCall.arg1, argsForCall.arg2
 }
 
-func (fake *CoreService) DeleteUserFilesReturns(result1 error) {
+func (fake *UserService) DeleteUserFilesReturns(result1 error) {
 	fake.deleteUserFilesMutex.Lock()
 	defer fake.deleteUserFilesMutex.Unlock()
 	fake.DeleteUserFilesStub = nil
@@ -352,7 +352,7 @@ func (fake *CoreService) DeleteUserFilesReturns(result1 error) {
 	}{result1}
 }
 
-func (fake *CoreService) DeleteUserFilesReturnsOnCall(i int, result1 error) {
+func (fake *UserService) DeleteUserFilesReturnsOnCall(i int, result1 error) {
 	fake.deleteUserFilesMutex.Lock()
 	defer fake.deleteUserFilesMutex.Unlock()
 	fake.DeleteUserFilesStub = nil
@@ -366,7 +366,7 @@ func (fake *CoreService) DeleteUserFilesReturnsOnCall(i int, result1 error) {
 	}{result1}
 }
 
-func (fake *CoreService) GetUser(arg1 context.Context, arg2 string) (core.UserRecord, error) {
+func (fake *UserService) GetUser(arg1 context.Context, arg2 string) (service.UserRecord, error) {
 	fake.getUserMutex.Lock()
 	ret, specificReturn := fake.getUserReturnsOnCall[len(fake.getUserArgsForCall)]
 	fake.getUserArgsForCall = append(fake.getUserArgsForCall, struct {
@@ -386,52 +386,52 @@ func (fake *CoreService) GetUser(arg1 context.Context, arg2 string) (core.UserRe
 	return fakeReturns.result1, fakeReturns.result2
 }
 
-func (fake *CoreService) GetUserCallCount() int {
+func (fake *UserService) GetUserCallCount() int {
 	fake.getUserMutex.RLock()
 	defer fake.getUserMutex.RUnlock()
 	return len(fake.getUserArgsForCall)
 }
 
-func (fake *CoreService) GetUserCalls(stub func(context.Context, string) (core.UserRecord, error)) {
+func (fake *UserService) GetUserCalls(stub func(context.Context, string) (service.UserRecord, error)) {
 	fake.getUserMutex.Lock()
 	defer fake.getUserMutex.Unlock()
 	fake.GetUserStub = stub
 }
 
-func (fake *CoreService) GetUserArgsForCall(i int) (context.Context, string) {
+func (fake *UserService) GetUserArgsForCall(i int) (context.Context, string) {
 	fake.getUserMutex.RLock()
 	defer fake.getUserMutex.RUnlock()
 	argsForCall := fake.getUserArgsForCall[i]
 	return argsForCall.arg1, argsForCall.arg2
 }
 
-func (fake *CoreService) GetUserReturns(result1 core.UserRecord, result2 error) {
+func (fake *UserService) GetUserReturns(result1 service.UserRecord, result2 error) {
 	fake.getUserMutex.Lock()
 	defer fake.getUserMutex.Unlock()
 	fake.GetUserStub = nil
 	fake.getUserReturns = struct {
-		result1 core.UserRecord
+		result1 service.UserRecord
 		result2 error
 	}{result1, result2}
 }
 
-func (fake *CoreService) GetUserReturnsOnCall(i int, result1 core.UserRecord, result2 error) {
+func (fake *UserService) GetUserReturnsOnCall(i int, result1 service.UserRecord, result2 error) {
 	fake.getUserMutex.Lock()
 	defer fake.getUserMutex.Unlock()
 	fake.GetUserStub = nil
 	if fake.getUserReturnsOnCall == nil {
 		fake.getUserReturnsOnCall = make(map[int]struct {
-			result1 core.UserRecord
+			result1 service.UserRecord
 			result2 error
 		})
 	}
 	fake.getUserReturnsOnCall[i] = struct {
-		result1 core.UserRecord
+		result1 service.UserRecord
 		result2 error
 	}{result1, result2}
 }
 
-func (fake *CoreService) ListUserFiles(arg1 context.Context, arg2 string) ([]core.FileRecord, error) {
+func (fake *UserService) ListUserFiles(arg1 context.Context, arg2 string) ([]service.FileRecord, error) {
 	fake.listUserFilesMutex.Lock()
 	ret, specificReturn := fake.listUserFilesReturnsOnCall[len(fake.listUserFilesArgsForCall)]
 	fake.listUserFilesArgsForCall = append(fake.listUserFilesArgsForCall, struct {
@@ -451,52 +451,52 @@ func (fake *CoreService) ListUserFiles(arg1 context.Context, arg2 string) ([]cor
 	return fakeReturns.result1, fakeReturns.result2
 }
 
-func (fake *CoreService) ListUserFilesCallCount() int {
+func (fake *UserService) ListUserFilesCallCount() int {
 	fake.listUserFilesMutex.RLock()
 	defer fake.listUserFilesMutex.RUnlock()
 	return len(fake.listUserFilesArgsForCall)
 }
 
-func (fake *CoreService) ListUserFilesCalls(stub func(context.Context, string) ([]core.FileRecord, error)) {
+func (fake *UserService) ListUserFilesCalls(stub func(context.Context, string) ([]service.FileRecord, error)) {
 	fake.listUserFilesMutex.Lock()
 	defer fake.listUserFilesMutex.Unlock()
 	fake.ListUserFilesStub = stub
 }
 
-func (fake *CoreService) ListUserFilesArgsForCall(i int) (context.Context, string) {
+func (fake *UserService) ListUserFilesArgsForCall(i int) (context.Context, string) {
 	fake.listUserFilesMutex.RLock()
 	defer fake.listUserFilesMutex.RUnlock()
 	argsForCall := fake.listUserFilesArgsForCall[i]
 	return argsForCall.arg1, argsForCall.arg2
 }
 
-func (fake *CoreService) ListUserFilesReturns(result1 []core.FileRecord, result2 error) {
+func (fake *UserService) ListUserFilesReturns(result1 []service.FileRecord, result2 error) {
 	fake.listUserFilesMutex.Lock()
 	defer fake.listUserFilesMutex.Unlock()
 	fake.ListUserFilesStub = nil
 	fake.listUserFilesReturns = struct {
-		result1 []core.FileRecord
+		result1 []service.FileRecord
 		result2 error
 	}{result1, result2}
 }
 
-func (fake *CoreService) ListUserFilesReturnsOnCall(i int, result1 []core.FileRecord, result2 error) {
+func (fake *UserService) ListUserFilesReturnsOnCall(i int, result1 []service.FileRecord, result2 error) {
 	fake.listUserFilesMutex.Lock()
 	defer fake.listUserFilesMutex.Unlock()
 	fake.ListUserFilesStub = nil
 	if fake.listUserFilesReturnsOnCall == nil {
 		fake.listUserFilesReturnsOnCall = make(map[int]struct {
-			result1 []core.FileRecord
+			result1 []service.FileRecord
 			result2 error
 		})
 	}
 	fake.listUserFilesReturnsOnCall[i] = struct {
-		result1 []core.FileRecord
+		result1 []service.FileRecord
 		result2 error
 	}{result1, result2}
 }
 
-func (fake *CoreService) ListUsers(arg1 context.Context, arg2 int, arg3 int) ([]core.UserRecord, error) {
+func (fake *UserService) ListUsers(arg1 context.Context, arg2 int, arg3 int) ([]service.UserRecord, error) {
 	fake.listUsersMutex.Lock()
 	ret, specificReturn := fake.listUsersReturnsOnCall[len(fake.listUsersArgsForCall)]
 	fake.listUsersArgsForCall = append(fake.listUsersArgsForCall, struct {
@@ -517,52 +517,52 @@ func (fake *CoreService) ListUsers(arg1 context.Context, arg2 int, arg3 int) ([]
 	return fakeReturns.result1, fakeReturns.result2
 }
 
-func (fake *CoreService) ListUsersCallCount() int {
+func (fake *UserService) ListUsersCallCount() int {
 	fake.listUsersMutex.RLock()
 	defer fake.listUsersMutex.RUnlock()
 	return len(fake.listUsersArgsForCall)
 }
 
-func (fake *CoreService) ListUsersCalls(stub func(context.Context, int, int) ([]core.UserRecord, error)) {
+func (fake *UserService) ListUsersCalls(stub func(context.Context, int, int) ([]service.UserRecord, error)) {
 	fake.listUsersMutex.Lock()
 	defer fake.listUsersMutex.Unlock()
 	fake.ListUsersStub = stub
 }
 
-func (fake *CoreService) ListUsersArgsForCall(i int) (context.Context, int, int) {
+func (fake *UserService) ListUsersArgsForCall(i int) (context.Context, int, int) {
 	fake.listUsersMutex.RLock()
 	defer fake.listUsersMutex.RUnlock()
 	argsForCall := fake.listUsersArgsForCall[i]
 	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3
 }
 
-func (fake *CoreService) ListUsersReturns(result1 []core.UserRecord, result2 error) {
+func (fake *UserService) ListUsersReturns(result1 []service.UserRecord, result2 error) {
 	fake.listUsersMutex.Lock()
 	defer fake.listUsersMutex.Unlock()
 	fake.ListUsersStub = nil
 	fake.listUsersReturns = struct {
-		result1 []core.UserRecord
+		result1 []service.UserRecord
 		result2 error
 	}{result1, result2}
 }
 
-func (fake *CoreService) ListUsersReturnsOnCall(i int, result1 []core.UserRecord, result2 error) {
+func (fake *UserService) ListUsersReturnsOnCall(i int, result1 []service.UserRecord, result2 error) {
 	fake.listUsersMutex.Lock()
 	defer fake.listUsersMutex.Unlock()
 	fake.ListUsersStub = nil
 	if fake.listUsersReturnsOnCall == nil {
 		fake.listUsersReturnsOnCall = make(map[int]struct {
-			result1 []core.UserRecord
+			result1 []service.UserRecord
 			result2 error
 		})
 	}
 	fake.listUsersReturnsOnCall[i] = struct {
-		result1 []core.UserRecord
+		result1 []service.UserRecord
 		result2 error
 	}{result1, result2}
 }
 
-func (fake *CoreService) PublishEvent(arg1 context.Context, arg2 string, arg3 interface{}) error {
+func (fake *UserService) PublishEvent(arg1 context.Context, arg2 string, arg3 interface{}) error {
 	fake.publishEventMutex.Lock()
 	ret, specificReturn := fake.publishEventReturnsOnCall[len(fake.publishEventArgsForCall)]
 	fake.publishEventArgsForCall = append(fake.publishEventArgsForCall, struct {
@@ -583,26 +583,26 @@ func (fake *CoreService) PublishEvent(arg1 context.Context, arg2 string, arg3 in
 	return fakeReturns.result1
 }
 
-func (fake *CoreService) PublishEventCallCount() int {
+func (fake *UserService) PublishEventCallCount() int {
 	fake.publishEventMutex.RLock()
 	defer fake.publishEventMutex.RUnlock()
 	return len(fake.publishEventArgsForCall)
 }
 
-func (fake *CoreService) PublishEventCalls(stub func(context.Context, string, interface{}) error) {
+func (fake *UserService) PublishEventCalls(stub func(context.Context, string, interface{}) error) {
 	fake.publishEventMutex.Lock()
 	defer fake.publishEventMutex.Unlock()
 	fake.PublishEventStub = stub
 }
 
-func (fake *CoreService) PublishEventArgsForCall(i int) (context.Context, string, interface{}) {
+func (fake *UserService) PublishEventArgsForCall(i int) (context.Context, string, interface{}) {
 	fake.publishEventMutex.RLock()
 	defer fake.publishEventMutex.RUnlock()
 	argsForCall := fake.publishEventArgsForCall[i]
 	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3
 }
 
-func (fake *CoreService) PublishEventReturns(result1 error) {
+func (fake *UserService) PublishEventReturns(result1 error) {
 	fake.publishEventMutex.Lock()
 	defer fake.publishEventMutex.Unlock()
 	fake.PublishEventStub = nil
@@ -611,7 +611,7 @@ func (fake *CoreService) PublishEventReturns(result1 error) {
 	}{result1}
 }
 
-func (fake *CoreService) PublishEventReturnsOnCall(i int, result1 error) {
+func (fake *UserService) PublishEventReturnsOnCall(i int, result1 error) {
 	fake.publishEventMutex.Lock()
 	defer fake.publishEventMutex.Unlock()
 	fake.PublishEventStub = nil
@@ -625,12 +625,12 @@ func (fake *CoreService) PublishEventReturnsOnCall(i int, result1 error) {
 	}{result1}
 }
 
-func (fake *CoreService) RegisterUser(arg1 context.Context, arg2 core.RegisterMessage) error {
+func (fake *UserService) RegisterUser(arg1 context.Context, arg2 service.RegisterMessage) error {
 	fake.registerUserMutex.Lock()
 	ret, specificReturn := fake.registerUserReturnsOnCall[len(fake.registerUserArgsForCall)]
 	fake.registerUserArgsForCall = append(fake.registerUserArgsForCall, struct {
 		arg1 context.Context
-		arg2 core.RegisterMessage
+		arg2 service.RegisterMessage
 	}{arg1, arg2})
 	stub := fake.RegisterUserStub
 	fakeReturns := fake.registerUserReturns
@@ -645,26 +645,26 @@ func (fake *CoreService) RegisterUser(arg1 context.Context, arg2 core.RegisterMe
 	return fakeReturns.result1
 }
 
-func (fake *CoreService) RegisterUserCallCount() int {
+func (fake *UserService) RegisterUserCallCount() int {
 	fake.registerUserMutex.RLock()
 	defer fake.registerUserMutex.RUnlock()
 	return len(fake.registerUserArgsForCall)
 }
 
-func (fake *CoreService) RegisterUserCalls(stub func(context.Context, core.RegisterMessage) error) {
+func (fake *UserService) RegisterUserCalls(stub func(context.Context, service.RegisterMessage) error) {
 	fake.registerUserMutex.Lock()
 	defer fake.registerUserMutex.Unlock()
 	fake.RegisterUserStub = stub
 }
 
-func (fake *CoreService) RegisterUserArgsForCall(i int) (context.Context, core.RegisterMessage) {
+func (fake *UserService) RegisterUserArgsForCall(i int) (context.Context, service.RegisterMessage) {
 	fake.registerUserMutex.RLock()
 	defer fake.registerUserMutex.RUnlock()
 	argsForCall := fake.registerUserArgsForCall[i]
 	return argsForCall.arg1, argsForCall.arg2
 }
 
-func (fake *CoreService) RegisterUserReturns(result1 error) {
+func (fake *UserService) RegisterUserReturns(result1 error) {
 	fake.registerUserMutex.Lock()
 	defer fake.registerUserMutex.Unlock()
 	fake.RegisterUserStub = nil
@@ -673,7 +673,7 @@ func (fake *CoreService) RegisterUserReturns(result1 error) {
 	}{result1}
 }
 
-func (fake *CoreService) RegisterUserReturnsOnCall(i int, result1 error) {
+func (fake *UserService) RegisterUserReturnsOnCall(i int, result1 error) {
 	fake.registerUserMutex.Lock()
 	defer fake.registerUserMutex.Unlock()
 	fake.RegisterUserStub = nil
@@ -687,7 +687,7 @@ func (fake *CoreService) RegisterUserReturnsOnCall(i int, result1 error) {
 	}{result1}
 }
 
-func (fake *CoreService) SaveFileMetadata(arg1 context.Context, arg2 string, arg3 string, arg4 string) error {
+func (fake *UserService) SaveFileMetadata(arg1 context.Context, arg2 string, arg3 string, arg4 string) error {
 	fake.saveFileMetadataMutex.Lock()
 	ret, specificReturn := fake.saveFileMetadataReturnsOnCall[len(fake.saveFileMetadataArgsForCall)]
 	fake.saveFileMetadataArgsForCall = append(fake.saveFileMetadataArgsForCall, struct {
@@ -709,26 +709,26 @@ func (fake *CoreService) SaveFileMetadata(arg1 context.Context, arg2 string, arg
 	return fakeReturns.result1
 }
 
-func (fake *CoreService) SaveFileMetadataCallCount() int {
+func (fake *UserService) SaveFileMetadataCallCount() int {
 	fake.saveFileMetadataMutex.RLock()
 	defer fake.saveFileMetadataMutex.RUnlock()
 	return len(fake.saveFileMetadataArgsForCall)
 }
 
-func (fake *CoreService) SaveFileMetadataCalls(stub func(context.Context, string, string, string) error) {
+func (fake *UserService) SaveFileMetadataCalls(stub func(context.Context, string, string, string) error) {
 	fake.saveFileMetadataMutex.Lock()
 	defer fake.saveFileMetadataMutex.Unlock()
 	fake.SaveFileMetadataStub = stub
 }
 
-func (fake *CoreService) SaveFileMetadataArgsForCall(i int) (context.Context, string, string, string) {
+func (fake *UserService) SaveFileMetadataArgsForCall(i int) (context.Context, string, string, string) {
 	fake.saveFileMetadataMutex.RLock()
 	defer fake.saveFileMetadataMutex.RUnlock()
 	argsForCall := fake.saveFileMetadataArgsForCall[i]
 	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3, argsForCall.arg4
 }
 
-func (fake *CoreService) SaveFileMetadataReturns(result1 error) {
+func (fake *UserService) SaveFileMetadataReturns(result1 error) {
 	fake.saveFileMetadataMutex.Lock()
 	defer fake.saveFileMetadataMutex.Unlock()
 	fake.SaveFileMetadataStub = nil
@@ -737,7 +737,7 @@ func (fake *CoreService) SaveFileMetadataReturns(result1 error) {
 	}{result1}
 }
 
-func (fake *CoreService) SaveFileMetadataReturnsOnCall(i int, result1 error) {
+func (fake *UserService) SaveFileMetadataReturnsOnCall(i int, result1 error) {
 	fake.saveFileMetadataMutex.Lock()
 	defer fake.saveFileMetadataMutex.Unlock()
 	fake.SaveFileMetadataStub = nil
@@ -751,12 +751,12 @@ func (fake *CoreService) SaveFileMetadataReturnsOnCall(i int, result1 error) {
 	}{result1}
 }
 
-func (fake *CoreService) UpdateUser(arg1 context.Context, arg2 core.UpdateUserMessage, arg3 string) error {
+func (fake *UserService) UpdateUser(arg1 context.Context, arg2 service.UpdateUserMessage, arg3 string) error {
 	fake.updateUserMutex.Lock()
 	ret, specificReturn := fake.updateUserReturnsOnCall[len(fake.updateUserArgsForCall)]
 	fake.updateUserArgsForCall = append(fake.updateUserArgsForCall, struct {
 		arg1 context.Context
-		arg2 core.UpdateUserMessage
+		arg2 service.UpdateUserMessage
 		arg3 string
 	}{arg1, arg2, arg3})
 	stub := fake.UpdateUserStub
@@ -772,26 +772,26 @@ func (fake *CoreService) UpdateUser(arg1 context.Context, arg2 core.UpdateUserMe
 	return fakeReturns.result1
 }
 
-func (fake *CoreService) UpdateUserCallCount() int {
+func (fake *UserService) UpdateUserCallCount() int {
 	fake.updateUserMutex.RLock()
 	defer fake.updateUserMutex.RUnlock()
 	return len(fake.updateUserArgsForCall)
 }
 
-func (fake *CoreService) UpdateUserCalls(stub func(context.Context, core.UpdateUserMessage, string) error) {
+func (fake *UserService) UpdateUserCalls(stub func(context.Context, service.UpdateUserMessage, string) error) {
 	fake.updateUserMutex.Lock()
 	defer fake.updateUserMutex.Unlock()
 	fake.UpdateUserStub = stub
 }
 
-func (fake *CoreService) UpdateUserArgsForCall(i int) (context.Context, core.UpdateUserMessage, string) {
+func (fake *UserService) UpdateUserArgsForCall(i int) (context.Context, service.UpdateUserMessage, string) {
 	fake.updateUserMutex.RLock()
 	defer fake.updateUserMutex.RUnlock()
 	argsForCall := fake.updateUserArgsForCall[i]
 	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3
 }
 
-func (fake *CoreService) UpdateUserReturns(result1 error) {
+func (fake *UserService) UpdateUserReturns(result1 error) {
 	fake.updateUserMutex.Lock()
 	defer fake.updateUserMutex.Unlock()
 	fake.UpdateUserStub = nil
@@ -800,7 +800,7 @@ func (fake *CoreService) UpdateUserReturns(result1 error) {
 	}{result1}
 }
 
-func (fake *CoreService) UpdateUserReturnsOnCall(i int, result1 error) {
+func (fake *UserService) UpdateUserReturnsOnCall(i int, result1 error) {
 	fake.updateUserMutex.Lock()
 	defer fake.updateUserMutex.Unlock()
 	fake.UpdateUserStub = nil
@@ -814,7 +814,7 @@ func (fake *CoreService) UpdateUserReturnsOnCall(i int, result1 error) {
 	}{result1}
 }
 
-func (fake *CoreService) UploadUserFile(arg1 context.Context, arg2 string, arg3 io.Reader, arg4 int64) error {
+func (fake *UserService) UploadUserFile(arg1 context.Context, arg2 string, arg3 io.Reader, arg4 int64) error {
 	fake.uploadUserFileMutex.Lock()
 	ret, specificReturn := fake.uploadUserFileReturnsOnCall[len(fake.uploadUserFileArgsForCall)]
 	fake.uploadUserFileArgsForCall = append(fake.uploadUserFileArgsForCall, struct {
@@ -836,26 +836,26 @@ func (fake *CoreService) UploadUserFile(arg1 context.Context, arg2 string, arg3 
 	return fakeReturns.result1
 }
 
-func (fake *CoreService) UploadUserFileCallCount() int {
+func (fake *UserService) UploadUserFileCallCount() int {
 	fake.uploadUserFileMutex.RLock()
 	defer fake.uploadUserFileMutex.RUnlock()
 	return len(fake.uploadUserFileArgsForCall)
 }
 
-func (fake *CoreService) UploadUserFileCalls(stub func(context.Context, string, io.Reader, int64) error) {
+func (fake *UserService) UploadUserFileCalls(stub func(context.Context, string, io.Reader, int64) error) {
 	fake.uploadUserFileMutex.Lock()
 	defer fake.uploadUserFileMutex.Unlock()
 	fake.UploadUserFileStub = stub
 }
 
-func (fake *CoreService) UploadUserFileArgsForCall(i int) (context.Context, string, io.Reader, int64) {
+func (fake *UserService) UploadUserFileArgsForCall(i int) (context.Context, string, io.Reader, int64) {
 	fake.uploadUserFileMutex.RLock()
 	defer fake.uploadUserFileMutex.RUnlock()
 	argsForCall := fake.uploadUserFileArgsForCall[i]
 	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3, argsForCall.arg4
 }
 
-func (fake *CoreService) UploadUserFileReturns(result1 error) {
+func (fake *UserService) UploadUserFileReturns(result1 error) {
 	fake.uploadUserFileMutex.Lock()
 	defer fake.uploadUserFileMutex.Unlock()
 	fake.UploadUserFileStub = nil
@@ -864,7 +864,7 @@ func (fake *CoreService) UploadUserFileReturns(result1 error) {
 	}{result1}
 }
 
-func (fake *CoreService) UploadUserFileReturnsOnCall(i int, result1 error) {
+func (fake *UserService) UploadUserFileReturnsOnCall(i int, result1 error) {
 	fake.uploadUserFileMutex.Lock()
 	defer fake.uploadUserFileMutex.Unlock()
 	fake.UploadUserFileStub = nil
@@ -878,7 +878,7 @@ func (fake *CoreService) UploadUserFileReturnsOnCall(i int, result1 error) {
 	}{result1}
 }
 
-func (fake *CoreService) ValidateToken(arg1 context.Context, arg2 string) (jwt.MapClaims, error) {
+func (fake *UserService) ValidateToken(arg1 context.Context, arg2 string) (jwt.MapClaims, error) {
 	fake.validateTokenMutex.Lock()
 	ret, specificReturn := fake.validateTokenReturnsOnCall[len(fake.validateTokenArgsForCall)]
 	fake.validateTokenArgsForCall = append(fake.validateTokenArgsForCall, struct {
@@ -898,26 +898,26 @@ func (fake *CoreService) ValidateToken(arg1 context.Context, arg2 string) (jwt.M
 	return fakeReturns.result1, fakeReturns.result2
 }
 
-func (fake *CoreService) ValidateTokenCallCount() int {
+func (fake *UserService) ValidateTokenCallCount() int {
 	fake.validateTokenMutex.RLock()
 	defer fake.validateTokenMutex.RUnlock()
 	return len(fake.validateTokenArgsForCall)
 }
 
-func (fake *CoreService) ValidateTokenCalls(stub func(context.Context, string) (jwt.MapClaims, error)) {
+func (fake *UserService) ValidateTokenCalls(stub func(context.Context, string) (jwt.MapClaims, error)) {
 	fake.validateTokenMutex.Lock()
 	defer fake.validateTokenMutex.Unlock()
 	fake.ValidateTokenStub = stub
 }
 
-func (fake *CoreService) ValidateTokenArgsForCall(i int) (context.Context, string) {
+func (fake *UserService) ValidateTokenArgsForCall(i int) (context.Context, string) {
 	fake.validateTokenMutex.RLock()
 	defer fake.validateTokenMutex.RUnlock()
 	argsForCall := fake.validateTokenArgsForCall[i]
 	return argsForCall.arg1, argsForCall.arg2
 }
 
-func (fake *CoreService) ValidateTokenReturns(result1 jwt.MapClaims, result2 error) {
+func (fake *UserService) ValidateTokenReturns(result1 jwt.MapClaims, result2 error) {
 	fake.validateTokenMutex.Lock()
 	defer fake.validateTokenMutex.Unlock()
 	fake.ValidateTokenStub = nil
@@ -927,7 +927,7 @@ func (fake *CoreService) ValidateTokenReturns(result1 jwt.MapClaims, result2 err
 	}{result1, result2}
 }
 
-func (fake *CoreService) ValidateTokenReturnsOnCall(i int, result1 jwt.MapClaims, result2 error) {
+func (fake *UserService) ValidateTokenReturnsOnCall(i int, result1 jwt.MapClaims, result2 error) {
 	fake.validateTokenMutex.Lock()
 	defer fake.validateTokenMutex.Unlock()
 	fake.ValidateTokenStub = nil
@@ -943,7 +943,7 @@ func (fake *CoreService) ValidateTokenReturnsOnCall(i int, result1 jwt.MapClaims
 	}{result1, result2}
 }
 
-func (fake *CoreService) Invocations() map[string][][]interface{} {
+func (fake *UserService) Invocations() map[string][][]interface{} {
 	fake.invocationsMutex.RLock()
 	defer fake.invocationsMutex.RUnlock()
 	copiedInvocations := map[string][][]interface{}{}
@@ -953,7 +953,7 @@ func (fake *CoreService) Invocations() map[string][][]interface{} {
 	return copiedInvocations
 }
 
-func (fake *CoreService) recordInvocation(key string, args []interface{}) {
+func (fake *UserService) recordInvocation(key string, args []interface{}) {
 	fake.invocationsMutex.Lock()
 	defer fake.invocationsMutex.Unlock()
 	if fake.invocations == nil {
@@ -965,4 +965,4 @@ func (fake *CoreService) recordInvocation(key string, args []interface{}) {
 	fake.invocations[key] = append(fake.invocations[key], args)
 }
 
-var _ handler.CoreService = new(CoreService)
+var _ handler.UserService = new(UserService)

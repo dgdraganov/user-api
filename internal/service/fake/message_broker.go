@@ -5,7 +5,7 @@ import (
 	"context"
 	"sync"
 
-	"github.com/dgdraganov/user-api/internal/core"
+	"github.com/dgdraganov/user-api/internal/service"
 )
 
 type MessageBroker struct {
@@ -118,4 +118,4 @@ func (fake *MessageBroker) recordInvocation(key string, args []interface{}) {
 	fake.invocations[key] = append(fake.invocations[key], args)
 }
 
-var _ core.MessageBroker = new(MessageBroker)
+var _ service.MessageBroker = new(MessageBroker)

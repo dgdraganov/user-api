@@ -3,7 +3,7 @@ package payload
 import (
 	"fmt"
 
-	"github.com/dgdraganov/user-api/internal/core"
+	"github.com/dgdraganov/user-api/internal/service"
 	"github.com/jellydator/validation"
 )
 
@@ -27,8 +27,8 @@ func (r UpdateUserRequest) Validate() error {
 	return nil
 }
 
-func (r UpdateUserRequest) ToMessage() core.UpdateUserMessage {
-	return core.UpdateUserMessage{
+func (r UpdateUserRequest) ToMessage() service.UpdateUserMessage {
+	return service.UpdateUserMessage{
 		FirstName: r.FirstName,
 		LastName:  r.LastName,
 		Email:     r.Email,

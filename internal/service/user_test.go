@@ -1,12 +1,12 @@
-package core_test
+package service_test
 
 import (
 	"context"
 	"errors"
 
-	"github.com/dgdraganov/user-api/internal/core"
-	"github.com/dgdraganov/user-api/internal/core/fake"
 	"github.com/dgdraganov/user-api/internal/repository"
+	"github.com/dgdraganov/user-api/internal/service"
+	"github.com/dgdraganov/user-api/internal/service/fake"
 	tokenIssuer "github.com/dgdraganov/user-api/pkg/jwt"
 	"github.com/golang-jwt/jwt"
 	"github.com/google/uuid"
@@ -25,7 +25,7 @@ var _ = Describe("UserService", func() {
 		fakeLogger *zap.SugaredLogger
 		ctx        context.Context
 
-		usrSvc *core.UserService
+		usrSvc *service.UserService
 
 		fakeErr error
 	)
@@ -40,12 +40,12 @@ var _ = Describe("UserService", func() {
 		ctx = context.Background()
 		fakeErr = errors.New("fake error")
 
-		usrSvc = core.NewUserService(fakeLogger, fakeRepo, fakeRabbit, fakeJWT, fakeMinio, bucketName)
+		usrSvc = service.NewUserService(fakeLogger, fakeRepo, fakeRabbit, fakeJWT, fakeMinio, bucketName)
 	})
 
 	Describe("Authenticate", func() {
 		var (
-			authMsg        core.AuthMessage
+			authMsg        service.AuthMessage
 			token          string
 			err            error
 			userId         string
@@ -60,7 +60,7 @@ var _ = Describe("UserService", func() {
 			hashedPassword = "$2a$10$1MZHKX./8Dxi9t.F1/gnx.njCcEty299Hx01GLEms2moa3brpT0ky"
 			genToken = jwt.New(jwt.SigningMethodHS256)
 
-			authMsg = core.AuthMessage{
+			authMsg = service.AuthMessage{
 				Email:    "testuser",
 				Password: "testpass",
 			}
@@ -118,7 +118,7 @@ var _ = Describe("UserService", func() {
 			})
 
 			It("should return user not found error", func() {
-				Expect(err).To(MatchError(core.ErrUserNotFound))
+				Expect(err).To(MatchError(service.ErrUserNotFound))
 			})
 		})
 
@@ -135,7 +135,7 @@ var _ = Describe("UserService", func() {
 			})
 
 			It("should return incorrect password error", func() {
-				Expect(err).To(MatchError(core.ErrIncorrectPassword))
+				Expect(err).To(MatchError(service.ErrIncorrectPassword))
 			})
 		})
 

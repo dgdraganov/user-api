@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"regexp"
 
-	"github.com/dgdraganov/user-api/internal/core"
+	"github.com/dgdraganov/user-api/internal/service"
 	"github.com/jellydator/validation"
 )
 
@@ -40,8 +40,8 @@ func (r RegisterRequest) Validate() error {
 	return nil
 }
 
-func (r RegisterRequest) ToMessage() core.RegisterMessage {
-	return core.RegisterMessage{
+func (r RegisterRequest) ToMessage() service.RegisterMessage {
+	return service.RegisterMessage{
 		FirstName: r.FirstName,
 		LastName:  r.LastName,
 		Email:     r.Email,

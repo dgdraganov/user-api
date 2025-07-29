@@ -10,7 +10,6 @@ import (
 	"time"
 
 	"github.com/dgdraganov/user-api/internal/config"
-	"github.com/dgdraganov/user-api/internal/core"
 	"github.com/dgdraganov/user-api/internal/db"
 	"github.com/dgdraganov/user-api/internal/http/handler"
 	"github.com/dgdraganov/user-api/internal/http/handler/middleware"
@@ -19,6 +18,7 @@ import (
 	"github.com/dgdraganov/user-api/internal/minio"
 	"github.com/dgdraganov/user-api/internal/rabbit"
 	"github.com/dgdraganov/user-api/internal/repository"
+	"github.com/dgdraganov/user-api/internal/service"
 	"github.com/dgdraganov/user-api/pkg/jwt"
 	"github.com/dgdraganov/user-api/pkg/log"
 	"go.uber.org/zap/zapcore"
@@ -83,7 +83,7 @@ func main() {
 	}
 
 	// core service
-	userService := core.NewUserService(
+	userService := service.NewUserService(
 		logger,
 		repo,
 		rbMQ,

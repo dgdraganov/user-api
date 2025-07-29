@@ -4,7 +4,7 @@ package fake
 import (
 	"sync"
 
-	"github.com/dgdraganov/user-api/internal/core"
+	"github.com/dgdraganov/user-api/internal/service"
 	jwta "github.com/dgdraganov/user-api/pkg/jwt"
 	"github.com/golang-jwt/jwt"
 )
@@ -262,4 +262,4 @@ func (fake *JWTIssuer) recordInvocation(key string, args []interface{}) {
 	fake.invocations[key] = append(fake.invocations[key], args)
 }
 
-var _ core.JWTIssuer = new(JWTIssuer)
+var _ service.JWTIssuer = new(JWTIssuer)

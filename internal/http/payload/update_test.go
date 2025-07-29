@@ -4,8 +4,8 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
-	"github.com/dgdraganov/user-api/internal/core"
 	"github.com/dgdraganov/user-api/internal/http/payload"
+	"github.com/dgdraganov/user-api/internal/service"
 )
 
 var _ = Describe("UpdateUserRequest", func() {
@@ -56,7 +56,7 @@ var _ = Describe("UpdateUserRequest", func() {
 
 	Describe("ToMessage", func() {
 
-		var msg core.UpdateUserMessage
+		var msg service.UpdateUserMessage
 
 		JustBeforeEach(func() {
 			msg = req.ToMessage()

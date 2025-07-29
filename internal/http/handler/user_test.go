@@ -10,10 +10,10 @@ import (
 	"net/http/httptest"
 	"net/url"
 
-	"github.com/dgdraganov/user-api/internal/core"
 	"github.com/dgdraganov/user-api/internal/http/handler"
 	"github.com/dgdraganov/user-api/internal/http/handler/fake"
 	"github.com/dgdraganov/user-api/internal/http/payload"
+	"github.com/dgdraganov/user-api/internal/service"
 	"github.com/golang-jwt/jwt"
 	"github.com/google/uuid"
 
@@ -25,7 +25,7 @@ import (
 var _ = Describe("UserHandler", func() {
 	var (
 		uHandler      *handler.UserHandler
-		fakeService   *fake.CoreService
+		fakeService   *fake.UserService
 		fakeValidator *fake.RequestValidator
 		logger        *zap.SugaredLogger
 		recorder      *httptest.ResponseRecorder
@@ -40,7 +40,7 @@ var _ = Describe("UserHandler", func() {
 		userID = uuid.New().String()
 		fakeErr = errors.New("fake error")
 		logger = zap.NewNop().Sugar()
-		fakeService = new(fake.CoreService)
+		fakeService = new(fake.UserService)
 		fakeValidator = new(fake.RequestValidator)
 		recorder = httptest.NewRecorder()
 		uHandler = handler.NewUserHandler(logger, fakeValidator, fakeService)
@@ -84,7 +84,7 @@ var _ = Describe("UserHandler", func() {
 
 		When("credentials are invalid", func() {
 			BeforeEach(func() {
-				fakeService.AuthenticateReturns("", core.ErrIncorrectPassword)
+				fakeService.AuthenticateReturns("", service.ErrIncorrectPassword)
 			})
 
 			It("should return 401 Unauthorized", func() {
@@ -139,7 +139,7 @@ var _ = Describe("UserHandler", func() {
 
 		When("user already exists", func() {
 			BeforeEach(func() {
-				fakeService.RegisterUserReturns(core.ErrUserAlreadyExists)
+				fakeService.RegisterUserReturns(service.ErrUserAlreadyExists)
 			})
 
 			It("should return 409 Conflict", func() {
@@ -272,7 +272,7 @@ var _ = Describe("UserHandler", func() {
 			}
 
 			fakeService.ValidateTokenReturns(jwt.MapClaims{"sub": userID, "role": "user"}, nil)
-			fakeService.ListUsersReturns([]core.UserRecord{
+			fakeService.ListUsersReturns([]service.UserRecord{
 				{
 					ID:        uuid.New().String(),
 					Email:     "alice@example.com",
@@ -335,7 +335,7 @@ var _ = Describe("UserHandler", func() {
 			req.Header.Set("AUTH_TOKEN", testToken)
 
 			fakeService.ValidateTokenReturns(jwt.MapClaims{"sub": regularUserID, "role": "user"}, nil)
-			fakeService.GetUserReturns(core.UserRecord{
+			fakeService.GetUserReturns(service.UserRecord{
 				ID:        userID,
 				Email:     "john@example.com",
 				FirstName: "John",

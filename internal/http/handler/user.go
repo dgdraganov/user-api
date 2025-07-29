@@ -6,9 +6,9 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/dgdraganov/user-api/internal/core"
 	"github.com/dgdraganov/user-api/internal/http/handler/middleware"
 	"github.com/dgdraganov/user-api/internal/http/payload"
+	"github.com/dgdraganov/user-api/internal/service"
 	"github.com/golang-jwt/jwt"
 	"go.uber.org/zap"
 )
@@ -30,10 +30,10 @@ var (
 type UserHandler struct {
 	logs             *zap.SugaredLogger
 	requestValidator RequestValidator
-	coreSvc          CoreService
+	coreSvc          UserService
 }
 
-func NewUserHandler(logger *zap.SugaredLogger, requestValidator RequestValidator, coreService CoreService) *UserHandler {
+func NewUserHandler(logger *zap.SugaredLogger, requestValidator RequestValidator, coreService UserService) *UserHandler {
 	return &UserHandler{
 		logs:             logger,
 		requestValidator: requestValidator,
@@ -67,10 +67,10 @@ func (h *UserHandler) HandleAuthenticate(w http.ResponseWriter, r *http.Request)
 			Message: "Login failed",
 		}
 		httpCode := http.StatusInternalServerError
-		if errors.Is(err, core.ErrUserNotFound) {
+		if errors.Is(err, service.ErrUserNotFound) {
 			httpCode = http.StatusUnauthorized
 			resp.Error = err.Error()
-		} else if errors.Is(err, core.ErrIncorrectPassword) {
+		} else if errors.Is(err, service.ErrIncorrectPassword) {
 			httpCode = http.StatusUnauthorized
 			resp.Error = err.Error()
 		} else {
@@ -113,7 +113,7 @@ func (h *UserHandler) HandleRegisterUser(w http.ResponseWriter, r *http.Request)
 	}
 
 	err = h.coreSvc.RegisterUser(r.Context(), payload.ToMessage())
-	if errors.Is(err, core.ErrUserAlreadyExists) {
+	if errors.Is(err, service.ErrUserAlreadyExists) {
 		respond(w, Response{
 			Message: couldNotRegister,
 			Error:   "User with this email already exists",
@@ -240,7 +240,7 @@ func (h *UserHandler) HandleDeleteUser(w http.ResponseWriter, r *http.Request) {
 
 	err = h.coreSvc.DeleteUser(r.Context(), resourceGUID)
 	if err != nil {
-		if errors.Is(err, core.ErrUserNotFound) {
+		if errors.Is(err, service.ErrUserNotFound) {
 			respond(w, Response{
 				Message: couldNotDeleteUser,
 				Error:   "No user found with the provided ID",
@@ -341,7 +341,7 @@ func (h *UserHandler) HandleGetUser(w http.ResponseWriter, r *http.Request) {
 
 	user, err := h.coreSvc.GetUser(r.Context(), resourceGUID)
 	if err != nil {
-		if errors.Is(err, core.ErrUserNotFound) {
+		if errors.Is(err, service.ErrUserNotFound) {
 			respond(w, Response{
 				Message: couldNotGetUser,
 				Error:   "No user is found with the provided ID",

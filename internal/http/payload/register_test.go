@@ -4,8 +4,8 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
-	"github.com/dgdraganov/user-api/internal/core"
 	"github.com/dgdraganov/user-api/internal/http/payload"
+	"github.com/dgdraganov/user-api/internal/service"
 )
 
 var _ = Describe("RegisterRequest", func() {
@@ -69,24 +69,14 @@ var _ = Describe("RegisterRequest", func() {
 	Describe("ToMessage", func() {
 
 		var (
-			msg core.RegisterMessage
+			msg service.RegisterMessage
 		)
-
-		BeforeEach(func() {
-			// req = payload.RegisterRequest{
-			//  FirstName: "John",
-			// 	LastName:  "Doe",
-			// 	Age:       30,
-			// 	Email:     "john.doe@example.com",
-			// 	Password:  "securepass123",
-			// }
-		})
 
 		JustBeforeEach(func() {
 			msg = req.ToMessage()
 		})
 
-		It("should convert request to core.RegisterMessage", func() {
+		It("should convert request to service.RegisterMessage", func() {
 			Expect(msg.FirstName).To(Equal(req.FirstName))
 			Expect(msg.LastName).To(Equal(req.LastName))
 			Expect(msg.Email).To(Equal(req.Email))
